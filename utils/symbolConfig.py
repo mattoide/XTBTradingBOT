@@ -12,7 +12,7 @@ def getConfigBySymbol(symbol):
                 'VALORE_ALTO_RSI' : VALORE_RSI_MEDIO + 20,
                 'VALORE_BASSO_RSI' : VALORE_RSI_MEDIO - 20,
                 'PERCENTUALE_STOP_LOSS' : 1,
-                'VALORE_TRALING_STOP_LOSS' : 20,
+                'VALORE_TRALING_STOP_LOSS' : 2,
                 'MAX_STOP_LOSS_EUR': -5
             })
         case "BITCOIN":
@@ -23,7 +23,7 @@ def getConfigBySymbol(symbol):
                 'VALORE_ALTO_RSI' : VALORE_RSI_MEDIO + 20,
                 'VALORE_BASSO_RSI' : VALORE_RSI_MEDIO - 20,
                 'PERCENTUALE_STOP_LOSS' : 1,
-                'VALORE_TRALING_STOP_LOSS' : 20,
+                'VALORE_TRALING_STOP_LOSS' : 2,
                 'MAX_STOP_LOSS_EUR': -5
             })
         case "USDCHF":
@@ -34,7 +34,7 @@ def getConfigBySymbol(symbol):
                 'VALORE_ALTO_RSI' : VALORE_RSI_MEDIO + 20,
                 'VALORE_BASSO_RSI' : VALORE_RSI_MEDIO - 20,
                 'PERCENTUALE_STOP_LOSS' : 1,
-                'VALORE_TRALING_STOP_LOSS' : 50,
+                'VALORE_TRALING_STOP_LOSS' : 5,
                 'MAX_STOP_LOSS_EUR': -5
             })
         case "GBPCHF":
@@ -45,7 +45,7 @@ def getConfigBySymbol(symbol):
                 'VALORE_ALTO_RSI' : VALORE_RSI_MEDIO + 20,
                 'VALORE_BASSO_RSI' : VALORE_RSI_MEDIO - 20,
                 'PERCENTUALE_STOP_LOSS' : 1,
-                'VALORE_TRALING_STOP_LOSS' : 20,
+                'VALORE_TRALING_STOP_LOSS' : 2,
                 'MAX_STOP_LOSS_EUR': -5
             })
         case _:

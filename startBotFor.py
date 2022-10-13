@@ -24,7 +24,8 @@ MINUTI_VALORI_SIMBOLO = values['MINUTI_VALORI_SIMBOLO']
 VALORE_ALTO_RSI = values['VALORE_ALTO_RSI']
 VALORE_BASSO_RSI = values['VALORE_BASSO_RSI']
 PERCENTUALE_STOP_LOSS = values['PERCENTUALE_STOP_LOSS']
-VALORE_TRALING_STOP_LOSS = values['VALORE_TRALING_STOP_LOSS']
+VALORE_TRALING_STOP_LOSS = values['VALORE_TRALING_STOP_LOSS'] * 10
+VALORE_TRALING_STOP_LOSS_SMALL = VALORE_TRALING_STOP_LOSS - 1 * 10
 MAX_STOP_LOSS_EUR = values['MAX_STOP_LOSS_EUR']
 
 TRADE_PRICE = 0.01 #seems doenst change anything
@@ -243,14 +244,14 @@ while True:
             if(profitto != None and openedTrade['cmd'] == TransactionSide.BUY and rsi > VALORE_ALTO_RSI and profitto > 0):
                 # logga(ChiudoPosizione=openedTrade['order'])
                 # closeTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, 0.1, openedTrade['sl'], 0, TransactionType.ORDER_CLOSE, lottoMinimo)
-                logga(ModidicoPosizionePerOrdine=openedTrade['order'], ValoreTailingSL=VALORE_TRALING_STOP_LOSS)
-                print(modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS-5))
+                logga(ModidicoPosizionePerOrdine=openedTrade['order'], ValoreTailingSL=VALORE_TRALING_STOP_LOSS_SMALL)
+                print(modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS_SMALL))
 
             elif(profitto != None and openedTrade['cmd'] == TransactionSide.SELL and rsi < VALORE_BASSO_RSI  and profitto > 0):
                 # logga(ChiudoPosizione=openedTrade['order'])
                 # closeTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, 0.1, openedTrade['sl'], 0, TransactionType.ORDER_CLOSE, lottoMinimo)
-                logga(ModidicoPosizionePerOrdine=openedTrade['order'], ValoreTailingSL=VALORE_TRALING_STOP_LOSS)
-                modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS-5)
+                logga(ModidicoPosizionePerOrdine=openedTrade['order'], ValoreTailingSL=VALORE_TRALING_STOP_LOSS_SMALL)
+                modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS_SMALL)
 
         else:
             symbolInfo = getSymbol()
