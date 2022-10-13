@@ -1,0 +1,5 @@
+.env
+XTBWrapper/__pycache__/
+env/
+test.json
+utils/__pycache__/
