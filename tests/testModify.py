@@ -1,3 +1,6 @@
+import sys
+sys.path.append('../')   
+
 from array import array
 from multiprocessing.dummy import Array
 from statistics import mean
@@ -7,9 +10,10 @@ from XTBWrapper.xAPIConnector import *
 import datetime
 import os
 from dotenv import load_dotenv
-import sys
 from utils.symbolConfig import getConfigBySymbol
 
+import sys
+ 
 load_dotenv()
 
 USER_ID = os.getenv('USER_ID')
@@ -39,13 +43,8 @@ def createClient():
         print('Login failed. Error code: {0}'.format(loginResponse['errorCode']))
 
 
-    print(f"######### BOT started for {SYMBOL} #########")
     # logga(PERCENTUALE_STOP_LOSS=PERCENTUALE_STOP_LOSS , VALORE_TRALING_STOP_LOSS=VALORE_TRALING_STOP_LOSS)
     return client
-
-
-client = createClient()
-
 
 def getSymbol():
     return client.commandExecute('getSymbol', dict(symbol=SYMBOL))
@@ -78,6 +77,7 @@ def closeTrade(order, transactionType, symbol, price, sl, tp, type, volume):
 
 def modifyTrade(order, transactionType, symbol, price, sl, tp, type, volume, trailingStopLoss):
     return client.commandExecute('tradeTransaction', dict(tradeTransInfo=dict(order=order, cmd=transactionType, symbol=symbol, price=price, sl=sl, tp=tp, type=type, volume=volume, offset=trailingStopLoss)))
+
 
 def getOpenedTrades():
     return client.commandExecute('getTrades', dict(openedOnly=True))
@@ -188,11 +188,10 @@ def calcolaRsi():
 client = createClient()
 lottoMinimo = getSymbol()['returnData']['lotMin']
 
-PERCENTUALE_STOP_LOSS = 1
+PERCENTUALE_STOP_LOSS = 0.5
 
-rsi = calcolaRsi()
-
-openedTrades = getOpenedTrades()['returnData']
+# a = getOpenedTrades()['returnData'][0]['close_price']
+# print(a)
 
 
 symbolInfo = getSymbol()
@@ -200,15 +199,22 @@ prezzoAcquisto = symbolInfo['returnData']['bid']
 prezzoVendita = symbolInfo['returnData']['ask']
 precision = symbolInfo['returnData']['precision']
 
-
 percentualeStopLoss = getCorrectStopLoss(SYMBOL,lottoMinimo,TransactionSide.BUY, prezzoVendita, precision)
-print("Perc stop loss acquiesto", percentualeStopLoss)
-
-percentualeStopLoss = getCorrectStopLoss(SYMBOL,lottoMinimo,TransactionSide.SELL, prezzoAcquisto, precision)
-
-print("Perc stop loss vendita", percentualeStopLoss)
-# logga(AproPosizione="BUY", Per=SYMBOL, AlPrezzo="0.1", SL=round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision), TP=0, Lotto=lottoMinimo)
-# openTrade(TransactionSide.BUY, SYMBOL, 0.1,  round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision) , 0, TransactionType.ORDER_OPEN, lottoMinimo)['returnData']['order']
 
 
-sleep(1)
+
+# order = openTrade(TransactionSide.BUY, SYMBOL, 0.1,  round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision) , 0, TransactionType.ORDER_OPEN, lottoMinimo)['returnData']['order']
+# print(order)
+openedTrades = getOpenedTrades()['returnData']
+
+openedTrade = next((x for x in openedTrades if x['symbol'] == SYMBOL), None)
+# print(openedTrade)
+while True:
+
+    print(modifyTrade(openedTrade['order'], 0, SYMBOL, 0.01 , openedTrade['sl'], 0.0, TransactionType.ORDER_MODIFY, lottoMinimo, 15000))
+
+
+    sleep(.3)
+# print(modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, getOpenedTrades()['returnData'][0]['close_price'] , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, 5.0))
+
+

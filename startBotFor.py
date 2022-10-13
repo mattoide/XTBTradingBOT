@@ -26,6 +26,8 @@ VALORE_BASSO_RSI = values['VALORE_BASSO_RSI']
 PERCENTUALE_STOP_LOSS = values['PERCENTUALE_STOP_LOSS']
 VALORE_TRALING_STOP_LOSS = values['VALORE_TRALING_STOP_LOSS']
 MAX_STOP_LOSS_EUR = values['MAX_STOP_LOSS_EUR']
+
+TRADE_PRICE = 0.01 #seems doenst change anything
 MINIMUM_TP_VALUE = 0.20
 
 
@@ -99,6 +101,10 @@ def getCorrectStopLoss(symbol, lottoMinimo, cmd, prezzo, precision):
         print(profit)
         sleep(.3)
     return percentualeStopLoss
+
+def calcolaProfitto(symbol, cmd, lotto, prezzoApertura, prezzoAttuale):
+    return getProfitCalculation(symbol, lotto, cmd, prezzoApertura, prezzoAttuale)
+    
 
 def logga(**data):
     # data is a dict
@@ -202,37 +208,49 @@ while True:
             
             percentualeStopLoss = getCorrectStopLoss(SYMBOL,lottoMinimo,TransactionSide.BUY, prezzoVendita, precision)
 
-            logga(AproPosizione="BUY", Per=SYMBOL, AlPrezzo="0.1", SL=round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision), TP=0, Lotto=lottoMinimo)
-            order = openTrade(TransactionSide.BUY, SYMBOL, 0.1,  round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision) , 0, TransactionType.ORDER_OPEN, lottoMinimo)['returnData']['order']
+            logga(AproPosizione="BUY", Per=SYMBOL, AlPrezzo=TRADE_PRICE, SL=round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision), TP=0, Lotto=lottoMinimo)
+            order = openTrade(TransactionSide.BUY, SYMBOL, TRADE_PRICE,  round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision) , 0, TransactionType.ORDER_OPEN, lottoMinimo)['returnData']['order']
         elif(rsi>VALORE_ALTO_RSI):
 
             percentualeStopLoss = getCorrectStopLoss(SYMBOL,lottoMinimo,TransactionSide.SELL, prezzoAcquisto, precision)
 
-            logga(AproPosizione="SELL", Per=SYMBOL, AlPrezzo="0.1", SL=round(prezzoAcquisto + (percentualeStopLoss * prezzoAcquisto)/100, precision), TP=0, Lotto=lottoMinimo)
-            order = openTrade(TransactionSide.SELL, SYMBOL, 0.1, round(prezzoAcquisto + (percentualeStopLoss * prezzoAcquisto)/100, precision), 0, TransactionType.ORDER_OPEN, lottoMinimo)['returnData']['order']
+            logga(AproPosizione="SELL", Per=SYMBOL, AlPrezzo=TRADE_PRICE, SL=round(prezzoAcquisto + (percentualeStopLoss * prezzoAcquisto)/100, precision), TP=0, Lotto=lottoMinimo)
+            order = openTrade(TransactionSide.SELL, SYMBOL, TRADE_PRICE, round(prezzoAcquisto + (percentualeStopLoss * prezzoAcquisto)/100, precision), 0, TransactionType.ORDER_OPEN, lottoMinimo)['returnData']['order']
 
 
     else:
-        # openedTrade = openedTrades[0]
         openedTrade = next((x for x in openedTrades if x['symbol'] == SYMBOL), None)
 
         if(openedTrade != None):
-            # TODO: se sono in profitto di 0.50 allora applica il traling stop loss
-            if(openedTrade['offset'] <= 0 and openedTrade['profit']>MINIMUM_TP_VALUE):
-                logga(ModidicoPosizionePerOrdine=openedTrade['order'], ValoreTailingSL=VALORE_TRALING_STOP_LOSS)
-                modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, openedTrade['close_price'] , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS)
 
-            if(openedTrade['cmd'] == TransactionSide.BUY and rsi > VALORE_ALTO_RSI and openedTrade['profit'] > 0):
-                logga(ChiudoPosizione=openedTrade['order'])
+            profitto = openedTrade['profit']
+            
+            if(profitto == None):
+                symbolInfo = getSymbol()
+                prezzoAcquisto = symbolInfo['returnData']['bid']
+                prezzoVendita = symbolInfo['returnData']['ask']
+                
+                profitto = calcolaProfitto(SYMBOL, openedTrade['cmd'], lottoMinimo, openedTrade['open_price'], prezzoAcquisto if openedTrade['cmd'] == TransactionSide.BUY else prezzoVendita)
+                print("Profitto", profitto)
+                # logga(ModidicoPosizionePerOrdine=openedTrade['order'], ValoreTailingSL=VALORE_TRALING_STOP_LOSS)
+                # modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS)
+
+
+            if(profitto != None and  openedTrade['offset'] <= 0 and profitto>MINIMUM_TP_VALUE):
+                logga(ModidicoPosizionePerOrdine=openedTrade['order'], ValoreTailingSL=VALORE_TRALING_STOP_LOSS)
+                print(modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS))
+
+            if(profitto != None and openedTrade['cmd'] == TransactionSide.BUY and rsi > VALORE_ALTO_RSI and profitto > 0):
+                # logga(ChiudoPosizione=openedTrade['order'])
                 # closeTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, 0.1, openedTrade['sl'], 0, TransactionType.ORDER_CLOSE, lottoMinimo)
                 logga(ModidicoPosizionePerOrdine=openedTrade['order'], ValoreTailingSL=VALORE_TRALING_STOP_LOSS)
-                modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, openedTrade['close_price'] , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS-5)
+                print(modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS-5))
 
-            elif(openedTrade['cmd'] == TransactionSide.SELL and rsi < VALORE_BASSO_RSI  and openedTrade['profit'] > 0):
-                logga(ChiudoPosizione=openedTrade['order'])
+            elif(profitto != None and openedTrade['cmd'] == TransactionSide.SELL and rsi < VALORE_BASSO_RSI  and profitto > 0):
+                # logga(ChiudoPosizione=openedTrade['order'])
                 # closeTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, 0.1, openedTrade['sl'], 0, TransactionType.ORDER_CLOSE, lottoMinimo)
                 logga(ModidicoPosizionePerOrdine=openedTrade['order'], ValoreTailingSL=VALORE_TRALING_STOP_LOSS)
-                modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, openedTrade['close_price'] , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS-5)
+                modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS-5)
 
         else:
             symbolInfo = getSymbol()
@@ -244,14 +262,14 @@ while True:
             
                 percentualeStopLoss = getCorrectStopLoss(SYMBOL,lottoMinimo,TransactionSide.BUY, prezzoVendita, precision)
 
-                logga(AproPosizione="BUY", Per=SYMBOL, AlPrezzo="0.1", SL=round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision), TP=0, Lotto=lottoMinimo)
-                order = openTrade(TransactionSide.BUY, SYMBOL, 0.1,  round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision) , 0, TransactionType.ORDER_OPEN, lottoMinimo)['returnData']['order']
+                logga(AproPosizione="BUY", Per=SYMBOL, AlPrezzo=TRADE_PRICE, SL=round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision), TP=0, Lotto=lottoMinimo)
+                order = openTrade(TransactionSide.BUY, SYMBOL, TRADE_PRICE,  round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision) , 0, TransactionType.ORDER_OPEN, lottoMinimo)['returnData']['order']
             elif(rsi>VALORE_ALTO_RSI):
 
                 percentualeStopLoss = getCorrectStopLoss(SYMBOL,lottoMinimo,TransactionSide.SELL, prezzoAcquisto, precision)
 
-                logga(AproPosizione="SELL", Per=SYMBOL, AlPrezzo="0.1", SL=round(prezzoAcquisto + (percentualeStopLoss * prezzoAcquisto)/100, precision), TP=0, Lotto=lottoMinimo)
-                order = openTrade(TransactionSide.SELL, SYMBOL, 0.1, round(prezzoAcquisto + (percentualeStopLoss * prezzoAcquisto)/100, precision), 0, TransactionType.ORDER_OPEN, lottoMinimo)['returnData']['order']
+                logga(AproPosizione="SELL", Per=SYMBOL, AlPrezzo=TRADE_PRICE, SL=round(prezzoAcquisto + (percentualeStopLoss * prezzoAcquisto)/100, precision), TP=0, Lotto=lottoMinimo)
+                order = openTrade(TransactionSide.SELL, SYMBOL, TRADE_PRICE, round(prezzoAcquisto + (percentualeStopLoss * prezzoAcquisto)/100, precision), 0, TransactionType.ORDER_OPEN, lottoMinimo)['returnData']['order']
 
 
 
