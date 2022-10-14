@@ -8,7 +8,20 @@ from dotenv import load_dotenv
 import sys
 from utils.symbolConfig import getConfigBySymbol
 
+
 load_dotenv()
+
+# logger properties
+DEBUG = False
+logger = logging.getLogger()
+FORMAT = '[%(asctime)-15s][%(funcName)s:%(lineno)d] %(message)s'
+logging.basicConfig(format=FORMAT)
+
+if DEBUG:
+    logger.setLevel(logging.DEBUG)
+else:
+    logger.setLevel(logging.INFO)
+
 
 USER_ID = os.getenv('USER_ID')
 PASSWORD = os.getenv('PASSWORD')
@@ -31,13 +44,18 @@ MAX_STOP_LOSS_EUR = values['MAX_STOP_LOSS_EUR']
 TRADE_PRICE = 0.01 #seems doenst change anything
 MINIMUM_TP_VALUE = 0.50
 
+# logger.info(f"\n#########\nApro posizione: BUY\nPer: {SYMBOL}\nSL: {round(23 - (2 * 2)/100, 2)}\nLotto:{3}\n#########")
 
 def createClient():
     client = APIClient()
     loginResponse = client.execute(loginCommand(userId=USER_ID, password=PASSWORD))
 
     if(loginResponse['status'] == False):
-        print('Login failed. Error code: {0}'.format(loginResponse['errorCode']))
+        # print('Login failed. Error code: {0}'.format(loginResponse['errorCode']))
+        logger.error('Login failed. Error code: {0}'.format(loginResponse['errorCode']))
+        raise Exception('Login failed. Error code: {0}'.format(loginResponse['errorCode']))
+    else:
+        logger.debug(loginResponse)
 
     # return client
 
@@ -94,12 +112,10 @@ def getCorrectStopLoss(symbol, lottoMinimo, cmd, prezzo, precision):
     prezzoChiusura = calculateSLBuyOrSell(cmd, prezzo, precision, PERCENTUALE_STOP_LOSS)
     profit = getProfitCalculation(symbol, lottoMinimo, cmd, prezzo, prezzoChiusura)
     percentualeStopLoss = PERCENTUALE_STOP_LOSS
-    print(profit)
     while (profit < MAX_STOP_LOSS_EUR):
         percentualeStopLoss = percentualeStopLoss - 0.1
         prezzoChiusura = calculateSLBuyOrSell(cmd, prezzo, precision, percentualeStopLoss)
         profit = getProfitCalculation(symbol, lottoMinimo, cmd, prezzo, prezzoChiusura)
-        print(profit)
         sleep(.3)
     return percentualeStopLoss
 
@@ -127,12 +143,9 @@ def calcolaRsi():
     lastChartsInfo = lastChartsGeneralInfo['returnData']['rateInfos']
 
     lastChartsInfoReverted = sorted(lastChartsInfo, key=lambda x: x['ctm'], reverse=True)
-    # print("DEBUG LEN", len(lastChartsInfoReverted))
+    logger.debug (f'LAST CHARTS LENGTH: {len(lastChartsInfoReverted)}')
 
     prezziChiusura = []
-
-    # df = pd.read_excel(file_name) #Read Excel file as a DataFrame
-
 
     for i in range(PERIODO_RSI+1):
             current = lastChartsInfoReverted[i]
@@ -140,11 +153,9 @@ def calcolaRsi():
 
     prezziChiusuraReverted = prezziChiusura[::-1]
 
-    # for i in range(len(prezziChiusuraReverted)):
-    #     # df['CLOSE'][i] = prezziChiusuraReverted[i]
-
     gains = []
     losses = []
+
 
     for i in range(PERIODO_RSI):
         difference = prezziChiusuraReverted[i+1] - prezziChiusuraReverted[i]
@@ -158,39 +169,25 @@ def calcolaRsi():
             gain = 0
             loss = 0
 
+
         gains.append(round(gain,2))
         losses.append(round(loss,2))
-
-
-
 
     avg_gain = sum(gains) / len(gains)
     avg_loss = sum(losses) / len(losses)
 
-
     rs = avg_loss and avg_gain / avg_loss
-
-
 
     rsi = 100 - (100 / (1 + rs))
 
-    # print(prezziChiusuraReverted)
-    # print("gains", gains)
-    # print("losses", losses)
-    # print("avg_gain: ", avg_gain)
-    # print("avg_loss: ", avg_loss)
-   # print("RS:", round(rs,2))
-
-    # print("RSI: ",round(rsi, 2))
-
-    # df.to_excel("COPIARSINEW.xlsx")
+    logger.debug (f'RSI: {round(rsi, 2)}')
 
     return rsi
 
+
+
 client = createClient()
 lottoMinimo = getSymbol()['returnData']['lotMin']
-
-
 
 
 while True:
@@ -210,15 +207,14 @@ while True:
             
             percentualeStopLoss = getCorrectStopLoss(SYMBOL,lottoMinimo,TransactionSide.BUY, prezzoVendita, precision)
 
-            logga(AproPosizione="BUY", Per=SYMBOL, AlPrezzo=TRADE_PRICE, SL=round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision), TP=0, Lotto=lottoMinimo)
+            logger.info(f"\n#########\nOpen position: BUY\nFor: {SYMBOL}\nSL: {round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision)}\nLot:{lottoMinimo}\n#########")
             order = openTrade(TransactionSide.BUY, SYMBOL, TRADE_PRICE,  round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision) , 0, TransactionType.ORDER_OPEN, lottoMinimo)['returnData']['order']
         elif(rsi>VALORE_ALTO_RSI):
 
             percentualeStopLoss = getCorrectStopLoss(SYMBOL,lottoMinimo,TransactionSide.SELL, prezzoAcquisto, precision)
 
-            logga(AproPosizione="SELL", Per=SYMBOL, AlPrezzo=TRADE_PRICE, SL=round(prezzoAcquisto + (percentualeStopLoss * prezzoAcquisto)/100, precision), TP=0, Lotto=lottoMinimo)
+            logger.info(f"\n#########\nOpen position: SELL\nFor: {SYMBOL}\nSL: {round(prezzoAcquisto + (percentualeStopLoss * prezzoAcquisto)/100, precision)}\nLot:{lottoMinimo}\n#########")
             order = openTrade(TransactionSide.SELL, SYMBOL, TRADE_PRICE, round(prezzoAcquisto + (percentualeStopLoss * prezzoAcquisto)/100, precision), 0, TransactionType.ORDER_OPEN, lottoMinimo)['returnData']['order']
-
 
     else:
         openedTrade = next((x for x in openedTrades if x['symbol'] == SYMBOL), None)
@@ -233,14 +229,16 @@ while True:
                 prezzoVendita = symbolInfo['returnData']['ask']
                 
                 profitto = calcolaProfitto(SYMBOL, openedTrade['cmd'], lottoMinimo, openedTrade['open_price'], prezzoAcquisto if openedTrade['cmd'] == TransactionSide.BUY else prezzoVendita)
-                print("Profitto", profitto)
+                logger.info(f"\n#########\nError retrieving profit. Calculated profit: {profitto}\n#########")
+
                 # logga(ModidicoPosizionePerOrdine=openedTrade['order'], ValoreTailingSL=VALORE_TRALING_STOP_LOSS)
                 # modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS)
 
 
             if(profitto != None and  openedTrade['offset'] <= 0 and profitto>MINIMUM_TP_VALUE):
-                logga(ModidicoPosizionePerOrdine=openedTrade['order'], ValoreTailingSL=VALORE_TRALING_STOP_LOSS)
-                print(modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS))
+
+                logger.info(f"\n#########\Modify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS}\n#########")
+                logger.info(modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS))
 
             # if(profitto != None and openedTrade['cmd'] == TransactionSide.BUY and rsi > VALORE_ALTO_RSI and profitto > 0):
             #     # logga(ChiudoPosizione=openedTrade['order'])
@@ -264,13 +262,13 @@ while True:
             
                 percentualeStopLoss = getCorrectStopLoss(SYMBOL,lottoMinimo,TransactionSide.BUY, prezzoVendita, precision)
 
-                logga(AproPosizione="BUY", Per=SYMBOL, AlPrezzo=TRADE_PRICE, SL=round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision), TP=0, Lotto=lottoMinimo)
+                logger.info(f"\n#########\nOpen position: BUY\nFor: {SYMBOL}\nSL: {round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision)}\nLot:{lottoMinimo}\n#########")
                 order = openTrade(TransactionSide.BUY, SYMBOL, TRADE_PRICE,  round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision) , 0, TransactionType.ORDER_OPEN, lottoMinimo)['returnData']['order']
             elif(rsi>VALORE_ALTO_RSI):
 
                 percentualeStopLoss = getCorrectStopLoss(SYMBOL,lottoMinimo,TransactionSide.SELL, prezzoAcquisto, precision)
 
-                logga(AproPosizione="SELL", Per=SYMBOL, AlPrezzo=TRADE_PRICE, SL=round(prezzoAcquisto + (percentualeStopLoss * prezzoAcquisto)/100, precision), TP=0, Lotto=lottoMinimo)
+                logger.info(f"\n#########\nOpen position: SELL\nFor: {SYMBOL}\nSL: {round(prezzoAcquisto + (percentualeStopLoss * prezzoAcquisto)/100, precision)}\nLot:{lottoMinimo}\n#########")
                 order = openTrade(TransactionSide.SELL, SYMBOL, TRADE_PRICE, round(prezzoAcquisto + (percentualeStopLoss * prezzoAcquisto)/100, precision), 0, TransactionType.ORDER_OPEN, lottoMinimo)['returnData']['order']
 
 
