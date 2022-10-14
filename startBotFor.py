@@ -11,6 +11,10 @@ from utils.symbolConfig import getConfigBySymbol
 
 load_dotenv()
 
+RESET = "\x1b[0m"
+GREEN = "\x1b[32;20m"
+RED = "\x1b[31;20m"
+
 # logger properties
 DEBUG = False
 logger = logging.getLogger()
@@ -238,7 +242,8 @@ while True:
                 # logga(ModidicoPosizionePerOrdine=openedTrade['order'], ValoreTailingSL=VALORE_TRALING_STOP_LOSS)
                 # modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS)
 
-            print('Profit: ', profitto)
+            print(f'Profit: {GREEN} {profitto} {RESET}') if profitto >= 0 else print(f'Profit: {RED} {profitto} {RESET}') 
+            
             if(profitto != None and  openedTrade['offset'] <= 0 and profitto>MINIMUM_TP_VALUE):
 
                 logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS}\n#########")
