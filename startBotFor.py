@@ -237,7 +237,7 @@ while True:
 
             if(profitto != None and  openedTrade['offset'] <= 0 and profitto>MINIMUM_TP_VALUE):
 
-                logger.info(f"\n#########\Modify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS}\n#########")
+                logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS}\n#########")
                 logger.info(modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS))
 
             # if(profitto != None and openedTrade['cmd'] == TransactionSide.BUY and rsi > VALORE_ALTO_RSI and profitto > 0):
