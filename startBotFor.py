@@ -36,6 +36,7 @@ MINUTI_VALORI_SIMBOLO = values['MINUTI_VALORI_SIMBOLO']
 
 VALORE_ALTO_RSI = values['VALORE_ALTO_RSI']
 VALORE_BASSO_RSI = values['VALORE_BASSO_RSI']
+VALORE_SCARTO_RSI = 3
 PERCENTUALE_STOP_LOSS = values['PERCENTUALE_STOP_LOSS']
 VALORE_TRALING_STOP_LOSS = values['VALORE_TRALING_STOP_LOSS'] * 10
 VALORE_TRALING_STOP_LOSS_SMALL = VALORE_TRALING_STOP_LOSS - 1 * 10
@@ -43,6 +44,9 @@ MAX_STOP_LOSS_EUR = values['MAX_STOP_LOSS_EUR']
 
 TRADE_PRICE = 0.01 #seems doenst change anything
 MINIMUM_TP_VALUE = 0.50
+
+logger.debug(f"RSI MIN: {VALORE_BASSO_RSI - VALORE_SCARTO_RSI}")
+logger.debug(f"RSI MAX: {VALORE_ALTO_RSI + VALORE_SCARTO_RSI}")
 
 # logger.info(f"\n#########\nApro posizione: BUY\nPer: {SYMBOL}\nSL: {round(23 - (2 * 2)/100, 2)}\nLotto:{3}\n#########")
 
@@ -203,13 +207,13 @@ while True:
         prezzoVendita = symbolInfo['returnData']['ask']
         precision = symbolInfo['returnData']['precision']
 
-        if(rsi<VALORE_BASSO_RSI):
+        if(int(rsi) in range(int(VALORE_BASSO_RSI), int(VALORE_BASSO_RSI - VALORE_SCARTO_RSI))):
             
             percentualeStopLoss = getCorrectStopLoss(SYMBOL,lottoMinimo,TransactionSide.BUY, prezzoVendita, precision)
 
             logger.info(f"\n#########\nOpen position: BUY\nFor: {SYMBOL}\nSL: {round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision)}\nLot:{lottoMinimo}\n#########")
             order = openTrade(TransactionSide.BUY, SYMBOL, TRADE_PRICE,  round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision) , 0, TransactionType.ORDER_OPEN, lottoMinimo)['returnData']['order']
-        elif(rsi>VALORE_ALTO_RSI):
+        if(int(rsi) in range(int(VALORE_ALTO_RSI), int(VALORE_ALTO_RSI + VALORE_SCARTO_RSI))):
 
             percentualeStopLoss = getCorrectStopLoss(SYMBOL,lottoMinimo,TransactionSide.SELL, prezzoAcquisto, precision)
 
@@ -258,13 +262,13 @@ while True:
             prezzoVendita = symbolInfo['returnData']['ask']
             precision = symbolInfo['returnData']['precision']
 
-            if(rsi<VALORE_BASSO_RSI):
+            if(int(rsi) in range(int(VALORE_BASSO_RSI), int(VALORE_BASSO_RSI - VALORE_SCARTO_RSI))):
             
                 percentualeStopLoss = getCorrectStopLoss(SYMBOL,lottoMinimo,TransactionSide.BUY, prezzoVendita, precision)
 
                 logger.info(f"\n#########\nOpen position: BUY\nFor: {SYMBOL}\nSL: {round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision)}\nLot: {lottoMinimo}\n#########")
                 order = openTrade(TransactionSide.BUY, SYMBOL, TRADE_PRICE,  round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision) , 0, TransactionType.ORDER_OPEN, lottoMinimo)['returnData']['order']
-            elif(rsi>VALORE_ALTO_RSI):
+            elif(int(rsi) in range(int(VALORE_ALTO_RSI), int(VALORE_ALTO_RSI + VALORE_SCARTO_RSI))):
 
                 percentualeStopLoss = getCorrectStopLoss(SYMBOL,lottoMinimo,TransactionSide.SELL, prezzoAcquisto, precision)
 
