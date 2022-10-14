@@ -1,6 +1,10 @@
 import json
 
 VALORE_RSI_MEDIO = 50
+VALORE_ALTO_RSI = VALORE_RSI_MEDIO + 25
+VALORE_BASSO_RSI = VALORE_RSI_MEDIO - 25
+MAX_STOP_LOSS_EUR = -3
+VALORE_TRALING_STOP_LOSS = 5
 
 def getConfigBySymbol(symbol):
     symb = next((x for x in symbols if x["symbol"] == symbol), None)
@@ -23,11 +27,11 @@ symbols =    [
                     'PERIODO_RSI' : 14,
                     'MINUTI_TIMESTAMP_GET_CHART' : 20,
                     'MINUTI_VALORI_SIMBOLO' : 1,
-                    'VALORE_ALTO_RSI' : VALORE_RSI_MEDIO + 20,
-                    'VALORE_BASSO_RSI' : VALORE_RSI_MEDIO - 20,
+                    'VALORE_ALTO_RSI' : VALORE_ALTO_RSI,
+                    'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                     'PERCENTUALE_STOP_LOSS' : 1,
-                    'VALORE_TRALING_STOP_LOSS' : 2,
-                    'MAX_STOP_LOSS_EUR': -5
+                    'VALORE_TRALING_STOP_LOSS' : VALORE_TRALING_STOP_LOSS,
+                    'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR
                 }
         },
         {
@@ -37,11 +41,11 @@ symbols =    [
                     'PERIODO_RSI' : 14,
                     'MINUTI_TIMESTAMP_GET_CHART' : 20,
                     'MINUTI_VALORI_SIMBOLO' : 1,
-                    'VALORE_ALTO_RSI' : VALORE_RSI_MEDIO + 20,
-                    'VALORE_BASSO_RSI' : VALORE_RSI_MEDIO - 20,
+                    'VALORE_ALTO_RSI' : VALORE_ALTO_RSI,
+                    'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                     'PERCENTUALE_STOP_LOSS' : 1,
-                    'VALORE_TRALING_STOP_LOSS' : 2,
-                    'MAX_STOP_LOSS_EUR': -5
+                    'VALORE_TRALING_STOP_LOSS' : VALORE_TRALING_STOP_LOSS,
+                    'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR
                 }
         },
         {
@@ -51,11 +55,11 @@ symbols =    [
                 'PERIODO_RSI' : 14,
                 'MINUTI_TIMESTAMP_GET_CHART' : 20,
                 'MINUTI_VALORI_SIMBOLO' : 1,
-                'VALORE_ALTO_RSI' : VALORE_RSI_MEDIO + 20,
-                'VALORE_BASSO_RSI' : VALORE_RSI_MEDIO - 20,
+                'VALORE_ALTO_RSI' : VALORE_ALTO_RSI,
+                'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                 'PERCENTUALE_STOP_LOSS' : 1,
-                'VALORE_TRALING_STOP_LOSS' : 2,
-                'MAX_STOP_LOSS_EUR': -5
+                'VALORE_TRALING_STOP_LOSS' : VALORE_TRALING_STOP_LOSS,
+                'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR
                 }
         },
         {
@@ -66,11 +70,11 @@ symbols =    [
                 'PERIODO_RSI' : 14,
                 'MINUTI_TIMESTAMP_GET_CHART' : 20,
                 'MINUTI_VALORI_SIMBOLO' : 1,
-                'VALORE_ALTO_RSI' : VALORE_RSI_MEDIO + 20,
-                'VALORE_BASSO_RSI' : VALORE_RSI_MEDIO - 20,
+                'VALORE_ALTO_RSI' : VALORE_ALTO_RSI,
+                'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                 'PERCENTUALE_STOP_LOSS' : 1,
-                'VALORE_TRALING_STOP_LOSS' : 2,
-                'MAX_STOP_LOSS_EUR': -5
+                'VALORE_TRALING_STOP_LOSS' : VALORE_TRALING_STOP_LOSS,
+                'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR
                 }
             
         },
@@ -81,11 +85,11 @@ symbols =    [
                     'PERIODO_RSI' : 14,
                     'MINUTI_TIMESTAMP_GET_CHART' : 20,
                     'MINUTI_VALORI_SIMBOLO' : 1,
-                    'VALORE_ALTO_RSI' : VALORE_RSI_MEDIO + 20,
-                    'VALORE_BASSO_RSI' : VALORE_RSI_MEDIO - 20,
+                    'VALORE_ALTO_RSI' : VALORE_ALTO_RSI,
+                    'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                     'PERCENTUALE_STOP_LOSS' : 1,
-                    'VALORE_TRALING_STOP_LOSS' : 2,
-                    'MAX_STOP_LOSS_EUR': -5
+                    'VALORE_TRALING_STOP_LOSS' : VALORE_TRALING_STOP_LOSS,
+                    'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR
                 }
         },
         {
@@ -95,11 +99,11 @@ symbols =    [
                     'PERIODO_RSI' : 14,
                     'MINUTI_TIMESTAMP_GET_CHART' : 20,
                     'MINUTI_VALORI_SIMBOLO' : 1,
-                    'VALORE_ALTO_RSI' : VALORE_RSI_MEDIO + 20,
-                    'VALORE_BASSO_RSI' : VALORE_RSI_MEDIO - 20,
+                    'VALORE_ALTO_RSI' : VALORE_ALTO_RSI,
+                    'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                     'PERCENTUALE_STOP_LOSS' : 1,
-                    'VALORE_TRALING_STOP_LOSS' : 2,
-                    'MAX_STOP_LOSS_EUR': -5
+                    'VALORE_TRALING_STOP_LOSS' : VALORE_TRALING_STOP_LOSS,
+                    'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR
                 }
         },
          {
@@ -109,11 +113,11 @@ symbols =    [
                     'PERIODO_RSI' : 14,
                     'MINUTI_TIMESTAMP_GET_CHART' : 20,
                     'MINUTI_VALORI_SIMBOLO' : 1,
-                    'VALORE_ALTO_RSI' : VALORE_RSI_MEDIO + 20,
-                    'VALORE_BASSO_RSI' : VALORE_RSI_MEDIO - 20,
+                    'VALORE_ALTO_RSI' : VALORE_ALTO_RSI,
+                    'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                     'PERCENTUALE_STOP_LOSS' : 1,
-                    'VALORE_TRALING_STOP_LOSS' : 2,
-                    'MAX_STOP_LOSS_EUR': -5
+                    'VALORE_TRALING_STOP_LOSS' : VALORE_TRALING_STOP_LOSS,
+                    'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR
                 }
         },
          {
@@ -123,11 +127,11 @@ symbols =    [
                     'PERIODO_RSI' : 14,
                     'MINUTI_TIMESTAMP_GET_CHART' : 20,
                     'MINUTI_VALORI_SIMBOLO' : 1,
-                    'VALORE_ALTO_RSI' : VALORE_RSI_MEDIO + 20,
-                    'VALORE_BASSO_RSI' : VALORE_RSI_MEDIO - 20,
+                    'VALORE_ALTO_RSI' : VALORE_ALTO_RSI,
+                    'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                     'PERCENTUALE_STOP_LOSS' : 1,
-                    'VALORE_TRALING_STOP_LOSS' : 2,
-                    'MAX_STOP_LOSS_EUR': -5
+                    'VALORE_TRALING_STOP_LOSS' : VALORE_TRALING_STOP_LOSS,
+                    'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR
                 }
         },
   
