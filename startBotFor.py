@@ -242,7 +242,7 @@ while True:
                 # logga(ModidicoPosizionePerOrdine=openedTrade['order'], ValoreTailingSL=VALORE_TRALING_STOP_LOSS)
                 # modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS)
 
-            print(f'Profit: {GREEN} {profitto} {RESET}'end="\r") if profitto >= 0 else print(f'Profit: {RED} {profitto} {RESET}',end="\r")
+            print(f'Profit: {GREEN} {profitto} {RESET}',end="\r") if profitto >= 0 else print(f'Profit: {RED} {profitto} {RESET}',end="\r")
             
             if(profitto != None and  openedTrade['offset'] <= 0 and profitto>MINIMUM_TP_VALUE):
 
