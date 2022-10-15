@@ -1,6 +1,6 @@
 # XTBTradingBOT
 
-1 - install.sh
+1 - run install.sh
 
 2 - update .env file
 
