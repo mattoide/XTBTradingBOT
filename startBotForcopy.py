@@ -6,14 +6,12 @@ import datetime
 import os
 from dotenv import load_dotenv
 import sys
-from configs.symbolConfig import getConfigBySymbol
+from utils.symbolConfig import getConfigBySymbol
+import logging
+import threading
 
 
 load_dotenv()
-
-RESET = "\x1b[0m"
-GREEN = "\x1b[32;20m"
-RED = "\x1b[31;20m"
 
 # logger properties
 DEBUG = False
@@ -129,6 +127,30 @@ def getCorrectStopLoss(symbol, lottoMinimo, cmd, prezzo, precision):
 
 def calcolaProfitto(symbol, cmd, lotto, prezzoApertura, prezzoAttuale):
     return getProfitCalculation(symbol, lotto, cmd, prezzoApertura, prezzoAttuale)
+
+def monitoraProfitto():
+    while True:
+        o = getOpenedTrades()
+        # openedTradess = getOpenedTrades()['returnData']
+        si = getSymbol()
+        pa = si['returnData']['bid']
+        pv = si['returnData']['ask']
+        lm = getSymbol()['returnData']['lotMin']
+
+
+        if(len(o['returnData']) > 0):
+            print("c equalcosa")
+            ot = next((x for x in o['returnData'] if x['symbol'] == SYMBOL), None)
+            print(ot)
+            if(ot != None):
+                pf = calcolaProfitto(SYMBOL, ot['cmd'], lm, ot['open_price'], pa if ot['cmd'] == TransactionSide.BUY else pv)
+                logger.info(f"\n#########\nCalculated profit: {pf}\n#########")
+
+            #     if(profitto != None and  openedTrade['offset'] <= 0 and profitto>MINIMUM_TP_VALUE):
+            #         logger.info(f"\n#########\nModify position for order {openedTradee['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS}\n#########")
+            #         logger.info(modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS))
+        logger.info("im THE THREAD")
+        sleep(.5)
     
 
 def logga(**data):
@@ -188,15 +210,20 @@ def calcolaRsi():
 
     rsi = 100 - (100 / (1 + rs))
 
-    logger.debug (f'RSI: {round(rsi, 2)}')
+    logger.info (f'RSI: {round(rsi, 2)}')
 
     return rsi
 
 
 
 client = createClient()
-lottoMinimo = getSymbol()['returnData']['lotMin']
 
+
+
+lottoMinimo = getSymbol()['returnData']['lotMin']
+x = threading.Thread(target=monitoraProfitto)
+x.daemon = True
+x.start()
 
 while True:
 
@@ -242,14 +269,11 @@ while True:
                 # logga(ModidicoPosizionePerOrdine=openedTrade['order'], ValoreTailingSL=VALORE_TRALING_STOP_LOSS)
                 # modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS)
 
-            print(f'Profit: {GREEN} {profitto} {RESET}      ',end="\r") if profitto >= 0 else print(f'Profit: {RED} {profitto} {RESET}      ',end="\r")
-            
+
             if(profitto != None and  openedTrade['offset'] <= 0 and profitto>MINIMUM_TP_VALUE):
 
                 logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS}\n#########")
-                modifyResult = modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS)['status']
-                
-                print(f"Modify trade result: {GREEN} {modifyResult} {RESET}") if modifyResult == True else print(f"Modify trade result: {RED} {modifyResult} {RESET}")
+                logger.info(modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS))
 
             # if(profitto != None and openedTrade['cmd'] == TransactionSide.BUY and rsi > VALORE_ALTO_RSI and profitto > 0):
             #     # logga(ChiudoPosizione=openedTrade['order'])
@@ -264,9 +288,6 @@ while True:
             #     modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, lottoMinimo, VALORE_TRALING_STOP_LOSS_SMALL)
 
         else:
-
-            print("                             ",end ="\r")
-
             symbolInfo = getSymbol()
             prezzoAcquisto = symbolInfo['returnData']['bid']
             prezzoVendita = symbolInfo['returnData']['ask']
