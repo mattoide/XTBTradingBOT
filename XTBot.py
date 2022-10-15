@@ -8,7 +8,6 @@ from configs.generalConfigs import *
 import datetime
 
 
-
 SYMBOL = sys.argv[1]
 
 class XTBot:
@@ -18,7 +17,6 @@ class XTBot:
         self.login()
         self.symbolInfo = self.getSymbol()
         self.lotMin = self.symbolInfo['returnData']['lotMin'] * MULTYPLIER
-        print(self.lotMin)
         self.makeSomeMoney()
     
     def login(self):
@@ -145,8 +143,9 @@ class XTBot:
 
             openedTrade = next((x for x in openedTrades if x['symbol'] == SYMBOL), None) if len(openedTrades) > 0 else None
 
+            if(len(openedTrades) <= 0 and openedTrade == None):
 
-            if(len(openedTrades) <= 0 or openedTrade != None):
+                logger.debug("Non ho trade aperti oppure non trovo un trade con qursto symbol")
 
                 symbolInfo = self.getSymbol()
                 prezzoAcquisto = symbolInfo['returnData']['bid']
@@ -172,6 +171,8 @@ class XTBot:
                     self.openSellTrade(sl, 0)
             else:
                 # openedTrade = next((x for x in openedTrades if x['symbol'] == SYMBOL), None)
+                
+                logger.debug("esiste un trade con questo symbol")
 
                 if(openedTrade != None):
 
