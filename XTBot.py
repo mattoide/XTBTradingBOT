@@ -5,6 +5,8 @@ from configs.logginConfig import logger
 from configs.userConfigs import USER_ID, PASSWORD
 from configs.tradingConfig import *
 from configs.generalConfigs import *
+from configs.symbolConfig import getConfigBySymbol
+from utils.systemUtils import waitForClose
 import datetime
 
 
@@ -13,6 +15,7 @@ SYMBOL = sys.argv[1]
 class XTBot:
     def __init__(self, symbol):
         self.symbol = symbol
+        self.checkSymbolConfig()
         self.client = APIClient()
         self.login()
         self.symbolInfo = self.getSymbol()
@@ -22,11 +25,14 @@ class XTBot:
     def login(self):
             loginResponse = self.client.execute(loginCommand(userId=USER_ID, password=PASSWORD))
             if(loginResponse['status'] == False):
-                logger.error('Login failed. Error code: {0}'.format(loginResponse['errorCode']))
                 raise Exception('Login failed. Error code: {0}'.format(loginResponse['errorCode']))
             else:
                 logger.debug(loginResponse)
+
     
+
+    def checkSymbolConfig(self):
+        getConfigBySymbol(self.symbol)
 
     def getSymbol(self):
         return self.client.commandExecute('getSymbol', dict(symbol=self.symbol))
@@ -192,7 +198,7 @@ class XTBot:
                     if(profitto != None and  openedTrade['offset'] <= 0 and profitto>MINIMUM_TP_VALUE):
 
                         logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS}\n#########")
-                        modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'], SYMBOL, TRADE_PRICE , openedTrade['sl'], 0, TransactionType.ORDER_MODIFY, self.lotMin, VALORE_TRALING_STOP_LOSS)['status']
+                        modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, VALORE_TRALING_STOP_LOSS)['status']
                         
                         print(f"Modify trade result: {GREEN} {modifyResult} {RESET}") if modifyResult == True else print(f"Modify trade result: {RED} {modifyResult} {RESET}")
 
@@ -201,4 +207,9 @@ class XTBot:
 
 
 print(f"######### BOT started for {SYMBOL} #########")
-xtbot = XTBot(SYMBOL)
+
+try:
+    xtbot = XTBot(SYMBOL)
+except Exception as e:
+    logger.error(e)
+    waitForClose()

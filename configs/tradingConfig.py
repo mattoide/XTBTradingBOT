@@ -1,10 +1,17 @@
 import sys
 import json
 from .symbolConfig import getConfigBySymbol
+from .logginConfig import logger
+from utils.systemUtils import waitForClose
 
 SYMBOL = sys.argv[1]
 
-values = json.loads(getConfigBySymbol(SYMBOL))
+try:
+    values = json.loads(getConfigBySymbol(SYMBOL))
+except Exception as e:
+    logger.error(e)
+    waitForClose()
+
 
 PERIODO_RSI = values['PERIODO_RSI']
 MINUTI_TIMESTAMP_GET_CHART = values['MINUTI_TIMESTAMP_GET_CHART'] + 1500 

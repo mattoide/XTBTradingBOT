@@ -1,4 +1,6 @@
 import json
+from .logginConfig import logger
+from utils.systemUtils import waitForClose
 
 VALORE_RSI_MEDIO = 50
 VALORE_ALTO_RSI = VALORE_RSI_MEDIO + 20
@@ -12,7 +14,6 @@ def getConfigBySymbol(symbol):
         return json.dumps(symb['config'])
     else:
         raise Exception("Nessuna configurazione presente per asset:", symbol)
-
 
 def getAllSymbols():
     return json.dumps(symbols)

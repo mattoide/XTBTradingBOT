@@ -6,6 +6,8 @@ import ssl
 from threading import Thread
 from dotenv import load_dotenv
 import os
+from utils.systemUtils import waitForClose
+
 
 load_dotenv()
 
@@ -102,7 +104,10 @@ class JsonSocket(object):
 
     def _read(self, bytesSize=4096):
         if not self.socket:
-            raise RuntimeError("socket connection broken")
+            # raise RuntimeError("socket connection broken")
+            logger.error("socket connection broken")
+            waitForClose()
+
         while True:
             char = self.conn.recv(bytesSize).decode()
             self._receivedData += char
@@ -173,6 +178,7 @@ class APIClient(JsonSocket):
         if(not self.connect()):
             raise Exception("Cannot connect to " + address + ":" + str(port) + " after " + str(API_MAX_CONN_TRIES) + " retries")
 
+
     def execute(self, dictionary):
         self._sendObj(dictionary)
         return self._readObj()    
@@ -198,6 +204,7 @@ class APIStreamClient(JsonSocket):
         
         if(not self.connect()):
             raise Exception("Cannot connect to streaming on " + address + ":" + str(port) + " after " + str(API_MAX_CONN_TRIES) + " retries")
+
 
         self._running = True
         self._t = Thread(target=self._readStream, args=())
