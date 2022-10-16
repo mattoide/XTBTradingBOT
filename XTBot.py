@@ -101,8 +101,6 @@ class XTBot:
 
         while len(lastChartsInfo) < (PERIODO_RSI + 1):
             self.minuti_timestamp_get_charts = self.minuti_timestamp_get_charts * 2
-            print("while", self.minuti_timestamp_get_charts)
-
             minutesAgo = datetime.datetime.now() - datetime.timedelta(minutes=self.minuti_timestamp_get_charts)
             minutesAgo = "{:10.3f}".format(minutesAgo.timestamp()).replace('.', '')
             lastChartsGeneralInfo = self.getSymbolChartInfo(int(minutesAgo))
