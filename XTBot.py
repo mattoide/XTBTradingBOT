@@ -13,7 +13,7 @@ import datetime
 SYMBOL = sys.argv[1]
 
 class XTBot:
-    def __init__(self, symbol):
+    def __init__(self, symbol, autostart=False):
         self.symbol = symbol
         self.checkSymbolConfig()
         self.minuti_timestamp_get_charts = MINUTI_TIMESTAMP_GET_CHART
@@ -22,7 +22,9 @@ class XTBot:
         self.login()
         self.symbolInfo = self.getSymbol()
         self.lotMin = self.symbolInfo['returnData']['lotMin'] * MULTYPLIER
-        self.makeSomeMoney()
+        logger.debug(autostart)
+        if(autostart):
+            self.makeSomeMoney()
     
     def login(self):
             loginResponse = self.client.execute(loginCommand(userId=USER_ID, password=PASSWORD))
@@ -66,28 +68,32 @@ class XTBot:
     def getProfitCalculation(self, cmd, openPrice, closePrice):
         return self.client.commandExecute('getProfitCalculation', dict(symbol=SYMBOL, volume=self.lotMin, cmd=cmd, openPrice=openPrice, closePrice=closePrice))['returnData']['profit']
 
-    def calculateSLBuyOrSell(cmd, prezzo, precision, prercentualeStopLoss):
+    def calculateSLBuyOrSell(self, cmd, prezzo, precision, pips):
         if(cmd == TransactionSide.BUY):
-            prezzoChiusura = round(prezzo - (prercentualeStopLoss * prezzo)/100, precision)
+            prezzoChiusura = round(prezzo - pips, precision)
         else:
-            prezzoChiusura = round(prezzo + (prercentualeStopLoss * prezzo)/100, precision)
-        return prezzoChiusura
+            prezzoChiusura = round(prezzo + pips, precision)
+            return prezzoChiusura
 
     def getCorrectStopLoss(self, cmd, prezzo, precision):
-        prezzoChiusura = self.calculateSLBuyOrSell(cmd, prezzo, precision, PERCENTUALE_STOP_LOSS)
-        profit = self.getProfitCalculation(SYMBOL, self.lotMin, cmd, prezzo, prezzoChiusura)
-        percentualeStopLoss = PERCENTUALE_STOP_LOSS
+        logger.debug("Prezzo apertura:", prezzo)
+        logger.debug("Cmd:", cmd)
+        logger.debug("Precision:", precision)
+        prezzoChiusura = self.calculateSLBuyOrSell(cmd, prezzo, precision, round(PIPS_STOP_LOSS / pow(10, precision)))
+        perdita = self.getProfitCalculation(cmd, prezzo, prezzoChiusura)
+        pips = round(PIPS_STOP_LOSS / pow(10, precision), precision)
+        while (perdita > MAX_STOP_LOSS_EUR):
+            pips = pips * 1.5 
+            prezzoChiusura = self.calculateSLBuyOrSell(cmd, prezzo, precision, pips)
+            perdita = self.getProfitCalculation(cmd, prezzo, prezzoChiusura)
 
-        while (profit < MAX_STOP_LOSS_EUR):
-            percentualeStopLoss = percentualeStopLoss - 0.1
-            prezzoChiusura = self.calculateSLBuyOrSell(cmd, prezzo, precision, percentualeStopLoss)
-            profit = self.getProfitCalculation(SYMBOL, self.lotMin, cmd, prezzo, prezzoChiusura)
             sleep(.3)
-
-        return percentualeStopLoss
+        
+        # print(round(pips,precision))
+        return pips
 
     def calcolaProfitto(self, cmd, prezzoApertura, prezzoAttuale):
-        return self.getProfitCalculation(SYMBOL, self.lotMin, cmd, prezzoApertura, prezzoAttuale)
+        return self.getProfitCalculation(cmd, prezzoApertura, prezzoAttuale)
 
     def calcolaRsi(self):
 
@@ -171,8 +177,8 @@ class XTBot:
 
                 if(int(rsi) in range(int(VALORE_BASSO_RSI), int(VALORE_BASSO_RSI - VALORE_SCARTO_RSI))):
                     
-                    percentualeStopLoss = self.getCorrectStopLoss(SYMBOL,self.lotMin,TransactionSide.BUY, prezzoVendita, precision)
-                    sl = round(prezzoVendita - (percentualeStopLoss * prezzoVendita)/100, precision)
+                    pips = self.getCorrectStopLoss(TransactionSide.BUY, prezzoVendita, precision)
+                    sl = round(prezzoVendita - pips, precision)
 
                     logger.info(f"\n#########\nOpen position: BUY\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\n#########")
 
@@ -180,8 +186,8 @@ class XTBot:
                
                 if(int(rsi) in range(int(VALORE_ALTO_RSI), int(VALORE_ALTO_RSI + VALORE_SCARTO_RSI))):
 
-                    percentualeStopLoss = self.getCorrectStopLoss(SYMBOL,self.lotMin,TransactionSide.SELL, prezzoAcquisto, precision)
-                    sl = round(prezzoAcquisto + (percentualeStopLoss * prezzoAcquisto)/100, precision)
+                    pips = self.getCorrectStopLoss(TransactionSide.SELL, prezzoAcquisto, precision)
+                    sl = round(prezzoAcquisto + pips, precision)
 
                     logger.info(f"\n#########\nOpen position: SELL\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\n#########")
 
