@@ -13,7 +13,7 @@ import datetime
 SYMBOL = sys.argv[1]
 
 class XTBot:
-    def __init__(self, symbol, autostart=False):
+    def __init__(self, symbol, autostart=True):
         self.symbol = symbol
         self.checkSymbolConfig()
         self.minuti_timestamp_get_charts = MINUTI_TIMESTAMP_GET_CHART
