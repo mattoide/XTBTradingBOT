@@ -16,6 +16,8 @@ class XTBot:
     def __init__(self, symbol):
         self.symbol = symbol
         self.checkSymbolConfig()
+        self.minuti_timestamp_get_charts = MINUTI_TIMESTAMP_GET_CHART
+        self.minimum_tp_value = MINIMUM_TP_VALUE * MULTYPLIER
         self.client = APIClient()
         self.login()
         self.symbolInfo = self.getSymbol()
@@ -89,13 +91,24 @@ class XTBot:
 
     def calcolaRsi(self):
 
-        minutesAgo = datetime.datetime.now() - datetime.timedelta(minutes=MINUTI_TIMESTAMP_GET_CHART)
+        minutesAgo = datetime.datetime.now() - datetime.timedelta(minutes=self.minuti_timestamp_get_charts)
 
         minutesAgo = "{:10.3f}".format(minutesAgo.timestamp()).replace('.', '')
 
         lastChartsGeneralInfo = self.getSymbolChartInfo(int(minutesAgo))
 
         lastChartsInfo = lastChartsGeneralInfo['returnData']['rateInfos']
+
+        while len(lastChartsInfo) < (PERIODO_RSI + 1):
+            self.minuti_timestamp_get_charts = self.minuti_timestamp_get_charts * 2
+            print("while", self.minuti_timestamp_get_charts)
+
+            minutesAgo = datetime.datetime.now() - datetime.timedelta(minutes=self.minuti_timestamp_get_charts)
+            minutesAgo = "{:10.3f}".format(minutesAgo.timestamp()).replace('.', '')
+            lastChartsGeneralInfo = self.getSymbolChartInfo(int(minutesAgo))
+            lastChartsInfo = lastChartsGeneralInfo['returnData']['rateInfos']
+
+            sleep(.3)
 
         lastChartsInfoReverted = sorted(lastChartsInfo, key=lambda x: x['ctm'], reverse=True)
 
@@ -195,7 +208,7 @@ class XTBot:
 
                     print(f'Profit: {GREEN} {profitto} {RESET}      ',end="\r") if profitto >= 0 else print(f'Profit: {RED} {profitto} {RESET}      ',end="\r")
                     
-                    if(profitto != None and  openedTrade['offset'] <= 0 and profitto>MINIMUM_TP_VALUE):
+                    if(profitto != None and  openedTrade['offset'] <= 0 and profitto>self.minimum_tp_value):
 
                         logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS}\n#########")
                         modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, VALORE_TRALING_STOP_LOSS)['status']
