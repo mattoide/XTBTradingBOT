@@ -1,6 +1,14 @@
 import os
+import sys
 
-cmd ="read -n 1"
+platform = sys.platform
+
+cmd = ''
+
+if('win' in platform):
+    cmd = 'pause'
+elif('linux' in platform):
+    cmd = 'read -n 1'
 
 def waitForClose():
     os.system(cmd)

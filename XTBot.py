@@ -83,7 +83,7 @@ class XTBot:
         perdita = self.getProfitCalculation(cmd, prezzo, prezzoChiusura)
         pips = round(PIPS_STOP_LOSS / pow(10, precision), precision)
         while (perdita > MAX_STOP_LOSS_EUR):
-            pips = pips * 1.5 
+            pips = pips * 1.3 
             prezzoChiusura = self.calculateSLBuyOrSell(cmd, prezzo, precision, pips)
             perdita = self.getProfitCalculation(cmd, prezzo, prezzoChiusura)
 
