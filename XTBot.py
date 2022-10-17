@@ -84,7 +84,6 @@ class XTBot:
         logger.debug("Cmd:", cmd)
         logger.debug("Precision:", precision)
         prezzoChiusura = self.calculateSLBuyOrSell(cmd, prezzo, precision, round(PIPS_STOP_LOSS / pow(10, precision)))
-        print("Prezzo cbiusira", prezzoChiusura)
         perdita = self.getProfitCalculation(cmd, prezzo, prezzoChiusura)
         pips = round(PIPS_STOP_LOSS / pow(10, precision), precision)
         while (perdita > MAX_STOP_LOSS_EUR):
@@ -208,9 +207,11 @@ class XTBot:
 
             openedTrade = next((x for x in openedTrades if x['symbol'] == SYMBOL), None) if len(openedTrades) > 0 else None
 
-            logger.debug(f"OPENED TRADE {openedTrade}")
-            logger.debug("Lunghezza trades:", len(openedTrades))
-            logger.debug("openedTrade:", openedTrade)
+            # if(openedTrade != None):
+            #     print(f"OPENED TRADE {openedTrade['symbol']}")
+            # else:
+            #     print("TRADE NON TROVATO")
+            # print("Lunghezza trades:", len(openedTrades))
 
             if(len(openedTrades) <= 0 or openedTrade == None):
 
@@ -223,27 +224,23 @@ class XTBot:
                 prezzoVendita = symbolInfo['returnData']['ask']
                 precision = symbolInfo['returnData']['precision']
 
-                print("previuoso rsi", self.previousRsi)
-                print("Currrenti rsi", rsi)
+                logger.debug("previuoso rsi", self.previousRsi)
+                logger.debug("Currrenti rsi", rsi)
+                logger.debug("\n\n")
 
 
-                if((self.checkRSIIfInBuyRange(rsi) and self.rialzo == True) or (self.previousRsi != 0 and rsi > self.previousRsi and self.rialzo == True)):
-                    print("DOVREI COMPRARE")
+                # if((self.checkRSIIfInBuyRange(rsi) and self.rialzo == True) or (self.previousRsi != 0 and rsi > self.previousRsi and self.rialzo == True)):
+                #     print("DOVREI COMPRARE")
 
-                if((self.checkRSIIfInSellRange(rsi)and self.rialzo == False) or (self.previousRsi != 0 and rsi > self.previousRsi and self.rialzo == True)):
-                    print("DOVREI VENDERE")
+                # if((self.checkRSIIfInSellRange(rsi)     and self.rialzo == False) or (self.previousRsi != 0 and rsi < self.previousRsi and self.rialzo == False)):
+                #     print("DOVREI VENDERE")
                 
                 # self.previousRsi = rsi
-
-            
-
-
 
                 # if(int(rsi) in range(int(VALORE_BASSO_RSI), int(VALORE_BASSO_RSI - VALORE_SCARTO_RSI)) and self.rialzo == True):
                 if((self.checkRSIIfInBuyRange(rsi) and self.rialzo == True) or (self.previousRsi != 0 and rsi > self.previousRsi and self.rialzo == True)):
 
                     logger.debug("mi trovo nel range BUY")
-                    print("mi trovo nel range BUY")
                     
                     pips = self.getCorrectStopLoss(TransactionSide.BUY, prezzoVendita, precision)
                     sl = round(prezzoVendita - pips, precision)
@@ -253,7 +250,7 @@ class XTBot:
                     self.openBuyTrade(sl, 0)
                
                 # if(int(rsi) in range(int(VALORE_ALTO_RSI), int(VALORE_ALTO_RSI + VALORE_SCARTO_RSI)) and self.rialzo == False):
-                if((self.checkRSIIfInSellRange(rsi)and self.rialzo == False) or (self.previousRsi != 0 and rsi > self.previousRsi and self.rialzo == True)):
+                if((self.checkRSIIfInSellRange(rsi)and self.rialzo == False) or (self.previousRsi != 0 and rsi < self.previousRsi and self.rialzo == False)):
 
                     logger.debug("mi trovo nel range SELL")
 
@@ -284,7 +281,8 @@ class XTBot:
                         logger.info(f"\n#########\nError retrieving profit. Calculated profit: {profitto}\n#########")
 
 
-                    print(f'RSI: {round(rsi, 2)} - Profit: {GREEN} {profitto} {RESET}      ',end="\r") if profitto >= 0 else print(f'RSI: {round(rsi, 2)} -Profit: {RED} {profitto} {RESET}      ',end="\r")
+                    # print(f'RSI: {round(rsi, 2)} - Profit: {GREEN} {profitto} {RESET}      ',end="\r") if profitto >= 0 else print(f'RSI: {round(rsi, 2)} -Profit: {RED} {profitto} {RESET}      ',end="\r")
+                    print(f'Profit: {GREEN} {profitto} {RESET}      ',end="\r") if profitto >= 0 else print(f'Profit: {RED} {profitto} {RESET}      ',end="\r")
                     
                     if(profitto != None and  openedTrade['offset'] <= 0 and profitto>self.minimum_tp_value):
 
