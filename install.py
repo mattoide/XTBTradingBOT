@@ -10,5 +10,4 @@ if('win' in platform):
 elif('linux' in platform):
     cmd = './installers/install.sh'
 
-print(cmd)
 os.system(cmd)
