@@ -186,7 +186,7 @@ class XTBot:
         rsi = 100 - (100 / (1 + rs))
 
         logger.debug(f'RSI: {round(rsi, 2)}')
-        print(f'RSI: {round(rsi, 2)}', end="\r")
+        # print(f'RSI: {round(rsi, 2)}', end="\r")
 
         if(prezziChiusuraReverted[len(prezziChiusuraReverted)-1]>prezziChiusuraReverted[len(prezziChiusuraReverted)-2]):
             self.rialzo = True
