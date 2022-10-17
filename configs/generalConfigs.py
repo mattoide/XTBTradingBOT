@@ -2,11 +2,11 @@ import sys
 
 platform = sys.platform
 
-
+### no color for winzoz
 if('win' in platform):
-    RESET = "[0m"
-    GREEN = "^<ESC^>[32m [32m"
-    RED = "^<ESC^>[31m [31m"
+    RESET = ""
+    GREEN = ""
+    RED = ""
 elif('linux' in platform):
     RESET = "\x1b[0m"
     GREEN = "\x1b[32;20m"
