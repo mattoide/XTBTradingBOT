@@ -153,8 +153,8 @@ class XTBot:
 
         rsi = 100 - (100 / (1 + rs))
 
-        logger.debug (f'RSI: {round(rsi, 2)}')
-
+        logger.debug(f'RSI: {round(rsi, 2)}')
+        # print(f'RSI: {round(rsi, 2)}')
         return rsi
     
     def makeSomeMoney(self):
@@ -164,18 +164,25 @@ class XTBot:
 
             openedTrades = self.getOpenedTrades()['returnData']
 
-            openedTrade = next((x for x in openedTrades if x['symbol'] == SYMBOL), None) if len(openedTrades) > 0 else None
+            openedTrade = next((x for x in openedTrades if x['symbol'] == SYMBOL), None) if len(openedTrades) > 0 else Non
 
-            if(len(openedTrades) <= 0 and openedTrade == None):
+            logger.debug(f"OPENED TRADE {openedTrade}")
+            logger.debug("Lunghezza trades:", len(openedTrades))
+            logger.debug("openedTrade:", openedTrade)
+
+            if(len(openedTrades) <= 0 or openedTrade == None):
 
                 logger.debug("Non ho trade aperti oppure non trovo un trade con qursto symbol")
-
+                logger.debug("RSI:", round(rsi,2))
+                logger.debug(f"RSI:{int(rsi)} BASSO: {int(VALORE_BASSO_RSI)} SCARTO: {int(VALORE_BASSO_RSI - VALORE_SCARTO_RSI)}")
+                logger.debug(f"RSI:{int(rsi)} ALTO: {int(VALORE_ALTO_RSI)} SCARTO: {int(VALORE_ALTO_RSI + VALORE_SCARTO_RSI)}")
                 symbolInfo = self.getSymbol()
                 prezzoAcquisto = symbolInfo['returnData']['bid']
                 prezzoVendita = symbolInfo['returnData']['ask']
                 precision = symbolInfo['returnData']['precision']
 
                 if(int(rsi) in range(int(VALORE_BASSO_RSI), int(VALORE_BASSO_RSI - VALORE_SCARTO_RSI))):
+                    logger.debug("mi trovo nel range BUY")
                     
                     pips = self.getCorrectStopLoss(TransactionSide.BUY, prezzoVendita, precision)
                     sl = round(prezzoVendita - pips, precision)
@@ -185,6 +192,7 @@ class XTBot:
                     self.openBuyTrade(sl, 0)
                
                 if(int(rsi) in range(int(VALORE_ALTO_RSI), int(VALORE_ALTO_RSI + VALORE_SCARTO_RSI))):
+                    logger.debug("mi trovo nel range SELL")
 
                     pips = self.getCorrectStopLoss(TransactionSide.SELL, prezzoAcquisto, precision)
                     sl = round(prezzoAcquisto + pips, precision)
