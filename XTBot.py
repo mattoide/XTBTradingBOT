@@ -54,11 +54,15 @@ class XTBot:
         order = self.client.commandExecute('tradeTransaction', dict(tradeTransInfo=dict(cmd=TransactionSide.BUY, symbol=SYMBOL, price=TRADE_PRICE, sl=sl, tp=tp, type=TransactionType.ORDER_OPEN, volume=self.lotMin)))
         if(order['status']):
             self.order = order['returnData']['order']
+        else:
+            print("ERROR: ",order)
 
     def openSellTrade(self, sl, tp):
         order = self.client.commandExecute('tradeTransaction', dict(tradeTransInfo=dict(cmd=TransactionSide.SELL, symbol=SYMBOL, price=TRADE_PRICE, sl=sl, tp=tp, type=TransactionType.ORDER_OPEN, volume=self.lotMin)))
         if(order['status']):
             self.order = order['returnData']['order']
+        else:
+            print("ERROR: ",order)
 
     def modifyTrade(self, order, transactionType, sl, tp, trailingStopLoss):
         return self.client.commandExecute('tradeTransaction', dict(tradeTransInfo=dict(order=order, cmd=transactionType, symbol=SYMBOL, price=TRADE_PRICE, sl=sl, tp=tp, type=TransactionType.ORDER_MODIFY, volume=self.lotMin, offset=trailingStopLoss)))
