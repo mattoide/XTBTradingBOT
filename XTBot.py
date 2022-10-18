@@ -13,7 +13,7 @@ import datetime
 SYMBOL = sys.argv[1]
 
 # PERIODO_TREND = 10
-CHECK_LAST_LAST = True
+CHECK_LAST_LAST = False
 
 class XTBot:
     def __init__(self, symbol, autostart=True):
