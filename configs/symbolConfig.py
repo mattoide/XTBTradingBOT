@@ -135,21 +135,8 @@ symbols =    [
                     'VALORE_TRALING_STOP_LOSS' : VALORE_TRALING_STOP_LOSS,
                     'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR
                 }
-        },         {
-            'symbol': "TSLA.US_4",
-            'config':
-                {
-                    'PERIODO_RSI' : 14,
-                    'MINUTI_TIMESTAMP_GET_CHART' : 20,
-                    'MINUTI_VALORI_SIMBOLO' : 1,
-                    'VALORE_ALTO_RSI' : VALORE_ALTO_RSI,
-                    'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
-                    'PIPS_STOP_LOSS' : PIPS_STOP_LOSS,
-                    'VALORE_TRALING_STOP_LOSS' : VALORE_TRALING_STOP_LOSS,
-                    'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR
-                }
-        },
-  
+        },      
+
     ]
 
 
