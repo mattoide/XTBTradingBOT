@@ -111,7 +111,7 @@ class XTBot:
         yesterady = "{:10.3f}".format(yesterady.timestamp()).replace('.', '')
         print(yesterady)
         trades = self.client.commandExecute('getTradesHistory', dict(end=0, start=int(yesterady)))['returnData']
-        trades = trades[::-1]
+        # trades = trades[::-1]
         trade = next((x for x in trades if x['symbol'] == SYMBOL and x['cmd'] == cmd), None) if len(trades) > 0 else None
 
         if(trade['profit'] > 0):
