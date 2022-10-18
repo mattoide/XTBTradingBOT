@@ -110,9 +110,9 @@ class XTBot:
         trades = self.client.commandExecute('getTradesHistory', dict(end=0, start=int(yesterady)))['returnData']
         # trades = trades[::-1]
         trade = next((x for x in trades if x['symbol'] == SYMBOL and x['cmd'] == cmd), None) if len(trades) > 0 else None
-        print("ID ULTIMA TRANSAZIONE:", trade['position'])
 
         if(trade != None):
+            print("ID ULTIMA TRANSAZIONE:", trade['position'])
             if(trade['profit'] > 0):
                 return True
             else:
@@ -246,7 +246,7 @@ class XTBot:
                         self.openBuyTrade(sl, 0)
 
                     else:
-                        
+
                         logger.info("VENDO perche ultimo trade in BUY è andato male")
 
                         pips = self.getCorrectStopLoss(TransactionSide.SELL, prezzoAcquisto, precision)
