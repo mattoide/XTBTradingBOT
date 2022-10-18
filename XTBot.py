@@ -12,9 +12,6 @@ import datetime
 
 SYMBOL = sys.argv[1]
 
-# PERIODO_TREND = 10
-CHECK_LAST_LAST = False
-
 class XTBot:
     def __init__(self, symbol, autostart=True):
         self.symbol = symbol
@@ -247,37 +244,18 @@ class XTBot:
                         logger.info(f"\n#########\nOpen position: BUY\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{rsi}\n#########")
 
                         self.openBuyTrade(sl, 0)
+
                     else:
-                        if(not CHECK_LAST_LAST):
-                                logger.info("VENDO perche ultimo trade in BUY è andato male")
+                        
+                        logger.info("VENDO perche ultimo trade in BUY è andato male")
 
-                                pips = self.getCorrectStopLoss(TransactionSide.SELL, prezzoAcquisto, precision)
-                                sl = round(prezzoAcquisto + pips, precision)
+                        pips = self.getCorrectStopLoss(TransactionSide.SELL, prezzoAcquisto, precision)
+                        sl = round(prezzoAcquisto + pips, precision)
 
-                                logger.info(f"\n#########\nOpen position: SELL\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{rsi}\n#########")
+                        logger.info(f"\n#########\nOpen position: SELL\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{rsi}\n#########")
 
-                                self.openSellTrade(sl, 0)
-                        else:
-                            
-                            if self.checkIfLastTradeIsOk(TransactionSide.SELL):
-                                logger.info("VENDO perche ultimo trade in BUY è andato male")
-
-                                pips = self.getCorrectStopLoss(TransactionSide.SELL, prezzoAcquisto, precision)
-                                sl = round(prezzoAcquisto + pips, precision)
-
-                                logger.info(f"\n#########\nOpen position: SELL\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{rsi}\n#########")
-
-                                self.openSellTrade(sl, 0)
-                            else:
-                                logger.debug("mi trovo nel range BUY")
-                                logger.info("Ultimo BUY KO quindi dovrei vendere ma ULTIMO SELL KO quindi COMPRO")
-
-                                pips = self.getCorrectStopLoss(TransactionSide.BUY, prezzoVendita, precision)
-                                sl = round(prezzoVendita - pips, precision)
-
-                                logger.info(f"\n#########\nOpen position: BUY\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{rsi}\n#########")
-
-                                self.openBuyTrade(sl, 0)                           
+                        self.openSellTrade(sl, 0)
+                                
                
                 # if(int(rsi) in range(int(VALORE_ALTO_RSI), int(VALORE_ALTO_RSI + VALORE_SCARTO_RSI)) and self.rialzo == False):
                 if((self.checkRSIIfInSellRange(rsi)and self.rialzo == False) or (self.previousRsi != 0 and rsi < self.previousRsi and self.rialzo == False)):
@@ -291,38 +269,18 @@ class XTBot:
                         logger.info(f"\n#########\nOpen position: SELL\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{rsi}\n#########")
 
                         self.openSellTrade(sl, 0)
+
                     else:
-                        if(not CHECK_LAST_LAST):
 
-                            logger.info("COMPRO perche ultimo trade in SELL è andato male")
-                            pips = self.getCorrectStopLoss(TransactionSide.BUY, prezzoVendita, precision)
-                            sl = round(prezzoVendita - pips, precision)
+                        logger.info("COMPRO perche ultimo trade in SELL è andato male")
+                        pips = self.getCorrectStopLoss(TransactionSide.BUY, prezzoVendita, precision)
+                        sl = round(prezzoVendita - pips, precision)
 
-                            logger.info(f"\n#########\nOpen position: BUY\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{rsi}\n#########")
+                        logger.info(f"\n#########\nOpen position: BUY\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{rsi}\n#########")
 
-                            self.openBuyTrade(sl, 0)
+                        self.openBuyTrade(sl, 0)
 
-                        else:
-                                
-                            if self.checkIfLastTradeIsOk(TransactionSide.BUY):
-
-                                logger.info("COMPRO perche ultimo trade in SELL è andato male")
-                                pips = self.getCorrectStopLoss(TransactionSide.BUY, prezzoVendita, precision)
-                                sl = round(prezzoVendita - pips, precision)
-
-                                logger.info(f"\n#########\nOpen position: BUY\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{rsi}\n#########")
-
-                                self.openBuyTrade(sl, 0)
-                            else:
-
-                                logger.debug("mi trovo nel range SELL")
-
-                                pips = self.getCorrectStopLoss(TransactionSide.SELL, prezzoAcquisto, precision)
-                                sl = round(prezzoAcquisto + pips, precision)
-
-                                logger.info(f"\n#########\nOpen position: SELL\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{rsi}\n#########")
-
-                                self.openSellTrade(sl, 0)
+                     
                     
                 self.previousRsi = rsi
 
