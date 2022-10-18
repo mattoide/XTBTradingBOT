@@ -101,11 +101,15 @@ class XTBot:
         return self.getProfitCalculation(cmd, prezzoApertura, prezzoAttuale)
 
     def checkRSIIfInBuyRange(self, rsi):
-        return(int(rsi) in range(int(VALORE_BASSO_RSI), int(VALORE_BASSO_RSI - VALORE_SCARTO_RSI)))
+        return(int(rsi) < (int(VALORE_BASSO_RSI)))
+        # TODO: niente range co controllo operazione precedente
+        # return(int(rsi) in range(int(VALORE_BASSO_RSI), int(VALORE_BASSO_RSI - VALORE_SCARTO_RSI)))
                     
 
     def checkRSIIfInSellRange(self, rsi):
-        return(int(rsi) in range(int(VALORE_ALTO_RSI), int(VALORE_ALTO_RSI + VALORE_SCARTO_RSI)))
+        return(int(rsi) > (int(VALORE_ALTO_RSI)))
+        # TODO: niente range co controllo operazione precedente
+        # return(int(rsi) in range(int(VALORE_ALTO_RSI), int(VALORE_ALTO_RSI + VALORE_SCARTO_RSI)))
     
     def checkIfLastTradeIsOk(self, cmd):
         yesterady = datetime.datetime.now() - datetime.timedelta(days=1)
