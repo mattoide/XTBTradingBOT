@@ -1,6 +1,7 @@
 # XTBTradingBOT
 
-1 - install python on your system
+1 - install python and python-pip on your system
+    1.1 - if u are on linux, install gnome-terminal
 
 2 - run "python install.py"
 

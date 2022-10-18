@@ -6,12 +6,6 @@ platform = sys.platform
 
 cmd = ''
 
-if('win' in platform):
-    cmd = 'pause'
-elif('linux' in platform):
-    cmd = 'read -n 1'
-
-
 from configs.symbolConfig import getAllSymbols
 
 symbols = json.loads(getAllSymbols())
