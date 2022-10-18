@@ -5,7 +5,8 @@ from utils.systemUtils import waitForClose
 VALORE_RSI_MEDIO = 50
 VALORE_ALTO_RSI = VALORE_RSI_MEDIO + 20
 VALORE_BASSO_RSI = VALORE_RSI_MEDIO - 20
-MAX_STOP_LOSS_EUR = -2
+MAX_STOP_LOSS_EUR_FOREX = -0.8
+MAX_STOP_LOSS_EUR_CRYPTO = -1
 VALORE_TRALING_STOP_LOSS = 3
 PIPS_STOP_LOSS = 1
 
@@ -33,7 +34,7 @@ symbols =    [
                     'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                     'PIPS_STOP_LOSS' : PIPS_STOP_LOSS,
                     'VALORE_TRALING_STOP_LOSS' : VALORE_TRALING_STOP_LOSS,
-                    'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR
+                    'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR_FOREX
                 }
         },
         {
@@ -47,7 +48,7 @@ symbols =    [
                     'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                     'PIPS_STOP_LOSS' : PIPS_STOP_LOSS,
                     'VALORE_TRALING_STOP_LOSS' : VALORE_TRALING_STOP_LOSS,
-                    'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR
+                    'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR_CRYPTO
                 }
         },
         {
@@ -61,7 +62,7 @@ symbols =    [
                 'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                 'PIPS_STOP_LOSS' : PIPS_STOP_LOSS,
                 'VALORE_TRALING_STOP_LOSS' : VALORE_TRALING_STOP_LOSS,
-                'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR
+                'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR_FOREX
                 }
         },
         {
@@ -76,7 +77,7 @@ symbols =    [
                 'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                 'PIPS_STOP_LOSS' : PIPS_STOP_LOSS,
                 'VALORE_TRALING_STOP_LOSS' : VALORE_TRALING_STOP_LOSS,
-                'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR
+                'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR_FOREX
                 }
             
         },
@@ -91,7 +92,7 @@ symbols =    [
                     'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                     'PIPS_STOP_LOSS' : PIPS_STOP_LOSS,
                     'VALORE_TRALING_STOP_LOSS' : VALORE_TRALING_STOP_LOSS,
-                    'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR
+                    'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR_FOREX
                 }
         },
         {
@@ -105,7 +106,7 @@ symbols =    [
                     'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                     'PIPS_STOP_LOSS' : PIPS_STOP_LOSS,
                     'VALORE_TRALING_STOP_LOSS' : VALORE_TRALING_STOP_LOSS,
-                    'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR
+                    'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR_FOREX
                 }
         },
          {
@@ -119,7 +120,7 @@ symbols =    [
                     'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                     'PIPS_STOP_LOSS' : PIPS_STOP_LOSS,
                     'VALORE_TRALING_STOP_LOSS' : VALORE_TRALING_STOP_LOSS,
-                    'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR
+                    'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR_FOREX
                 }
         },
          {
@@ -133,7 +134,7 @@ symbols =    [
                     'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                     'PIPS_STOP_LOSS' : PIPS_STOP_LOSS,
                     'VALORE_TRALING_STOP_LOSS' : VALORE_TRALING_STOP_LOSS,
-                    'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR
+                    'MAX_STOP_LOSS_EUR': MAX_STOP_LOSS_EUR_FOREX
                 }
         },      
 
