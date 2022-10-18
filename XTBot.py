@@ -115,10 +115,13 @@ class XTBot:
         trade = next((x for x in trades if x['symbol'] == SYMBOL and x['cmd'] == cmd), None) if len(trades) > 0 else None
         print("ID ULTIMA TRANSAZIONE:", trade['position'])
 
-        if(trade['profit'] > 0):
-            return True
+        if(trade != None):
+            if(trade['profit'] > 0):
+                return True
+            else:
+                return False
         else:
-            return False
+            return True
 
 
 
