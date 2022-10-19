@@ -112,6 +112,7 @@ class XTBot:
         # return(int(rsi) in range(int(VALORE_ALTO_RSI), int(VALORE_ALTO_RSI + VALORE_SCARTO_RSI)))
     
     def checkIfLastTradeIsOk(self, cmd):
+        return True
         yesterady = datetime.datetime.now() - datetime.timedelta(days=1)
         yesterady = "{:10.3f}".format(yesterady.timestamp()).replace('.', '')
         print(yesterady)
