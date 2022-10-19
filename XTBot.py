@@ -314,7 +314,7 @@ class XTBot:
                     # print(f'RSI: {round(rsi, 2)} - Profit: {GREEN} {profitto} {RESET}      ',end="\r") if profitto >= 0 else print(f'RSI: {round(rsi, 2)} -Profit: {RED} {profitto} {RESET}      ',end="\r")
                     print(f'Profit: {GREEN} {profitto} {RESET}      ',end="\r") if profitto >= 0 else print(f'Profit: {RED} {profitto} {RESET}      ',end="\r")
                     
-                    if(profitto != None and  openedTrade['offset'] <= 0 and profitto>(abs(MAX_STOP_LOSS_EUR)*2)):
+                    if(profitto != None and  openedTrade['offset'] <= 0 and profitto>self.minimum_tp_value):
 
                         logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS}\n#########")
                         modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, VALORE_TRALING_STOP_LOSS)['status']
