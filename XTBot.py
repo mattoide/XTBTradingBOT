@@ -207,10 +207,10 @@ class XTBot:
             return False
     
     def isLittleBodyRib(self, candle):
-        return abs((candle['open'] + candle['close']) - candle['open']) <= (abs((candle['open'] + candle['high'])) -  abs((candle['open'] + candle['close']))) / 3
+        return abs((candle['open'] + candle['close']) - candle['open']) <= (abs((candle['open'] + candle['high'])) -  abs((candle['open'] + candle['close']))) / DIVISORE_GRANDEZZA_CANDELA
 
     def isLittleBodyRalz(self, candle):
-        return abs((candle['open'] + candle['close']) - candle['open']) <= (abs((candle['open'] + candle['low'])) -  abs((candle['open'] + candle['close']))) / 3
+        return abs((candle['open'] + candle['close']) - candle['open']) <= (abs((candle['open'] + candle['low'])) -  abs((candle['open'] + candle['close']))) / DIVISORE_GRANDEZZA_CANDELA
 
 
     def getLastCharInfoForPeriod(self, period):
@@ -296,7 +296,7 @@ class XTBot:
 
         # logger.info(f'RSI {round(rsi, 2)} - PERIODI:  {PERIODO_RSI}')
         # print(ff'RSI {round(rsi, 2)} - PERIODI:  {PERIODO_RSI}', end='\r')
-
+        self.rsi = rsi
         return rsi
     
     def makeSomeMoney(self):
