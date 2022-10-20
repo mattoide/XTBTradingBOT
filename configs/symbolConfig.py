@@ -5,10 +5,11 @@ from utils.systemUtils import waitForClose
 VALORE_RSI_MEDIO = 50
 VALORE_ALTO_RSI = VALORE_RSI_MEDIO + 20
 VALORE_BASSO_RSI = VALORE_RSI_MEDIO - 20
-MAX_STOP_LOSS_EUR_FOREX = -0.20
+MAX_STOP_LOSS_EUR_FOREX = -0.50
 MAX_STOP_LOSS_EUR_CRYPTO = -1
 VALORE_TRALING_STOP_LOSS = 1
 PIPS_STOP_LOSS = 1
+PERIODO_CHARTS = 5
 
 def getConfigBySymbol(symbol):
     symb = next((x for x in symbols if x["symbol"] == symbol), None)
@@ -29,7 +30,7 @@ symbols =    [
                 {
                     'PERIODO_RSI' : 14,
                     'MINUTI_TIMESTAMP_GET_CHART' : 20,
-                    'MINUTI_VALORI_SIMBOLO' : 1,
+                    'PERIODO_CHARTS' : PERIODO_CHARTS,
                     'VALORE_ALTO_RSI' : VALORE_ALTO_RSI,
                     'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                     'PIPS_STOP_LOSS' : PIPS_STOP_LOSS,
@@ -43,7 +44,7 @@ symbols =    [
                 {
                     'PERIODO_RSI' : 14,
                     'MINUTI_TIMESTAMP_GET_CHART' : 20,
-                    'MINUTI_VALORI_SIMBOLO' : 1,
+                    'PERIODO_CHARTS' : PERIODO_CHARTS,
                     'VALORE_ALTO_RSI' : VALORE_ALTO_RSI,
                     'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                     'PIPS_STOP_LOSS' : PIPS_STOP_LOSS,
@@ -57,7 +58,7 @@ symbols =    [
                 {
                 'PERIODO_RSI' : 14,
                 'MINUTI_TIMESTAMP_GET_CHART' : 20,
-                'MINUTI_VALORI_SIMBOLO' : 1,
+                'PERIODO_CHARTS' : PERIODO_CHARTS,
                 'VALORE_ALTO_RSI' : VALORE_ALTO_RSI,
                 'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                 'PIPS_STOP_LOSS' : PIPS_STOP_LOSS,
@@ -72,7 +73,7 @@ symbols =    [
                 {
                 'PERIODO_RSI' : 14,
                 'MINUTI_TIMESTAMP_GET_CHART' : 20,
-                'MINUTI_VALORI_SIMBOLO' : 1,
+                'PERIODO_CHARTS' : PERIODO_CHARTS,
                 'VALORE_ALTO_RSI' : VALORE_ALTO_RSI,
                 'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                 'PIPS_STOP_LOSS' : PIPS_STOP_LOSS,
@@ -87,7 +88,7 @@ symbols =    [
                 {
                     'PERIODO_RSI' : 14,
                     'MINUTI_TIMESTAMP_GET_CHART' : 20,
-                    'MINUTI_VALORI_SIMBOLO' : 1,
+                    'PERIODO_CHARTS' : PERIODO_CHARTS,
                     'VALORE_ALTO_RSI' : VALORE_ALTO_RSI,
                     'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                     'PIPS_STOP_LOSS' : PIPS_STOP_LOSS,
@@ -101,7 +102,7 @@ symbols =    [
                 {
                     'PERIODO_RSI' : 14,
                     'MINUTI_TIMESTAMP_GET_CHART' : 20,
-                    'MINUTI_VALORI_SIMBOLO' : 1,
+                    'PERIODO_CHARTS' : PERIODO_CHARTS,
                     'VALORE_ALTO_RSI' : VALORE_ALTO_RSI,
                     'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                     'PIPS_STOP_LOSS' : PIPS_STOP_LOSS,
@@ -115,7 +116,7 @@ symbols =    [
                 {
                     'PERIODO_RSI' : 14,
                     'MINUTI_TIMESTAMP_GET_CHART' : 20,
-                    'MINUTI_VALORI_SIMBOLO' : 1,
+                    'PERIODO_CHARTS' : PERIODO_CHARTS,
                     'VALORE_ALTO_RSI' : VALORE_ALTO_RSI,
                     'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                     'PIPS_STOP_LOSS' : PIPS_STOP_LOSS,
@@ -129,7 +130,7 @@ symbols =    [
                 {
                     'PERIODO_RSI' : 14,
                     'MINUTI_TIMESTAMP_GET_CHART' : 20,
-                    'MINUTI_VALORI_SIMBOLO' : 1,
+                    'PERIODO_CHARTS' : PERIODO_CHARTS,
                     'VALORE_ALTO_RSI' : VALORE_ALTO_RSI,
                     'VALORE_BASSO_RSI' : VALORE_BASSO_RSI,
                     'PIPS_STOP_LOSS' : PIPS_STOP_LOSS,
