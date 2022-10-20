@@ -24,13 +24,6 @@ symbols =    [
                 }
         },
         {
-            'symbol': "BITCOIN",
-            'config':
-                {
-
-                }
-        },
-        {
             'symbol': "USDCHF",
             'config':
                 {
