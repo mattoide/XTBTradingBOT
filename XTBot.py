@@ -6,8 +6,10 @@ from configs.userConfigs import USER_ID, PASSWORD
 from configs.tradingConfig import *
 from configs.generalConfigs import *
 from configs.symbolConfig import getConfigBySymbol
+from tests.testRibassoRialzo import getCharts
 from utils.systemUtils import waitForClose
 import datetime
+from tests.testplot import plotta
 
 
 SYMBOL = sys.argv[1]
@@ -27,7 +29,7 @@ class XTBot:
         print(f"######### BOT started for {SYMBOL} #########")
         if(autostart):
             self.makeSomeMoney()
-    
+
     def login(self):
             loginResponse = self.client.execute(loginCommand(userId=USER_ID, password=PASSWORD))
             if(loginResponse['status'] == False):
@@ -35,7 +37,7 @@ class XTBot:
             else:
                 logger.debug(loginResponse)
 
-    
+
 
     def checkSymbolConfig(self):
         getConfigBySymbol(self.symbol)
@@ -58,7 +60,7 @@ class XTBot:
     #     precision = symbolInfo['returnData']['precision']
     #     pips = self.getCorrectStopLoss(TransactionSide.BUY, prezzoVendita, precision)
     #     sl = round(prezzoVendita - pips, precision)
-        
+
     #     logger.info(f"\n#########\nOpen position: BUY\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{self.rsi}\n#########")
 
     #     order = self.client.commandExecute('tradeTransaction', dict(tradeTransInfo=dict(cmd=TransactionSide.BUY, symbol=SYMBOL, price=TRADE_PRICE, sl=sl, tp=0, type=TransactionType.ORDER_OPEN, volume=self.lotMin)))
@@ -74,7 +76,7 @@ class XTBot:
     #     precision = symbolInfo['returnData']['precision']
     #     pips = self.getCorrectStopLoss(TransactionSide.SELL, prezzoAcquisto, precision)
     #     sl = round(prezzoAcquisto + pips, precision)
-       
+
     #     logger.info(f"\n#########\nOpen position: SELL\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{self.rsi}\n#########")
 
     #     order = self.client.commandExecute('tradeTransaction', dict(tradeTransInfo=dict(cmd=TransactionSide.SELL, symbol=SYMBOL, price=TRADE_PRICE, sl=sl, tp=0, type=TransactionType.ORDER_OPEN, volume=self.lotMin)))
@@ -117,7 +119,7 @@ class XTBot:
     #         prezzoChiusura = round(prezzo - pips, precision)
     #     else:
     #         prezzoChiusura = round(prezzo + pips, precision)
-        
+
     #     return prezzoChiusura
 
     # def getCorrectStopLoss(self, cmd, prezzo, precision):
@@ -132,7 +134,7 @@ class XTBot:
             prezzoChiusura = self.calculateSLBuyOrSell(cmd, prezzo, precision, pips)
             perdita = self.getProfitCalculation(cmd, prezzo, prezzoChiusura)
             sleep(.3)
-        
+
         # print(round(pips,precision))
         return pips
 
@@ -141,14 +143,17 @@ class XTBot:
 
     def checkRSIIfInBuyRange(self, rsi):
         return(int(rsi) < (int(VALORE_BASSO_RSI)))
-                    
+
 
     def checkRSIIfInSellRange(self, rsi):
         return(int(rsi) > (int(VALORE_ALTO_RSI)))
-    
+
+    def exactPrice(self, price):
+        return price / pow(10, self.precision)
+
     def chiusura(self, candle):
-        return candle['open'] + candle['close']
-    
+        return (candle['open'] + candle['close']) / pow(10, self.precision)
+
     def highPrice(self, candle):
         return (candle['open'] + candle['high']) / pow(10, self.precision)
 
@@ -162,55 +167,99 @@ class XTBot:
         return abs(candle['low']) > abs(candle['high']*2)
 
     def vengoDaRialzo(self, terzultima, quartultima, quintultima):
-        return self.chiusura(terzultima) >  self.chiusura(quartultima) > self.chiusura(quintultima)
+        # return self.chiusura(terzultima) >  self.chiusura(quartultima) > self.chiusura(quintultima) #TODO: vedere quante candle confrontare
+        return self.chiusura(terzultima) >  self.chiusura(quartultima)
 
 
     def vengoDaRibasso(self, terzultima, quartultima, quintultima):
-        return self.chiusura(terzultima) <  self.chiusura(quartultima) < self.chiusura(quintultima)
-    
-    def isLittleBodyRib(self, candle):
-        return self.chiusura(candle) - candle['open'] <= (candle['open'] + candle['high']) - self.chiusura(candle)
+        # return self.chiusura(terzultima) <  self.chiusura(quartultima) < self.chiusura(quintultima) #TODO: vedere quante candle confrontare
+        return self.chiusura(terzultima) <  self.chiusura(quartultima)
 
 
     def checkRibassistaInversion(self, current, last, terzultima, quartultima, quintultima):
 
-        if(self.chiusura(current) < self.chiusura(last) and self.inversioneRibassista(last) and self.vengoDaRialzo(terzultima, quartultima, quintultima) and self.isLittleBodyRib(last)):
-            print("INVERSIONE RIBASSISTA")
-            print(f"CHIUSURA CORRENTE: {self.chiusura(current)}")
-            print(f"CHIUSURA PRECEDENTE: {self.chiusura(last)}")
-            print(f"self.chiusura(current) < self.chiusura(last): {self.chiusura(current) < self.chiusura(last)}")
-            print(f"self.inversioneRibassista(last): {self.inversioneRibassista(last)}")
-            print(f"self.vengoDaRialzo(terzultima, quartultima, quintultima): {self.vengoDaRialzo(terzultima, quartultima, quintultima)}")
-            print(f"MASSIMO PRECEDENTE: {last['high']}")
-            print(f"MINIMO PRECEDENTE: {last['low']}")
-            print(f"ORARIO: {last['ctmString']}")
+        if(self.chiusura(current) < self.chiusura(last) and self.inversioneRibassista(last) and self.vengoDaRialzo(terzultima, quartultima, quintultima) and self.haveLittleBodyRib(last)):
+            # print("INVERSIONE RIBASSISTA")
+            # print(f"CHIUSURA CORRENTE: {self.chiusura(current)}")
+            # print(f"CHIUSURA PRECEDENTE: {self.chiusura(last)}")
+            # print(f"self.chiusura(current) < self.chiusura(last): {self.chiusura(current) < self.chiusura(last)}")
+            # print(f"self.inversioneRibassista(last): {self.inversioneRibassista(last)}")
+            # print(f"self.vengoDaRialzo(terzultima, quartultima, quintultima): {self.vengoDaRialzo(terzultima, quartultima, quintultima)}")
+            # print(f"MASSIMO PRECEDENTE: {last['high']}")
+            # print(f"MINIMO PRECEDENTE: {last['low']}")
+            # print(f"ORARIO: {last['ctmString']}")
             return True
         else:
             return False
 
     def checkRialzistaInversion(self, current, last, terzultima, quartultima, quintultima):
 
-        if(self.chiusura(current) > self.chiusura(last) and self.inversioneRialzista(last) and self.vengoDaRibasso(terzultima, quartultima, quintultima) and self.isLittleBodyRalz(last)):
-            print("INVERSIONE RIBASSISTA")
-            print(f"CHIUSURA CORRENTE: {self.chiusura(current)}")
-            print(f"CHIUSURA PRECEDENTE: {self.chiusura(last)}")
-            print(f"self.chiusura(current) > self.chiusura(last): {self.chiusura(current) > self.chiusura(last)}")
-            print(f"self.inversioneRialzista(last): {self.inversioneRialzista(last)}")
-            print(f"self.vengoDaRialzo(terzultima, quartultima, quintultima): {self.vengoDaRibasso(terzultima, quartultima, quintultima)}")
-            print(f"MASSIMO PRECEDENTE: {last['low']}")
-            print(f"MINIMO PRECEDENTE: {last['high']}")
-            print(f"ORARIO: {last['ctmString']}")
-            print("\n\n")
+        if(self.chiusura(current) > self.chiusura(last) and self.inversioneRialzista(last) and self.vengoDaRibasso(terzultima, quartultima, quintultima) and self.haveLittleBodyRialz(last)):
+            # print("INVERSIONE RIBASSISTA")
+            # print(f"CHIUSURA CORRENTE: {self.chiusura(current)}")
+            # print(f"CHIUSURA PRECEDENTE: {self.chiusura(last)}")
+            # print(f"self.chiusura(current) > self.chiusura(last): {self.chiusura(current) > self.chiusura(last)}")
+            # print(f"self.inversioneRialzista(last): {self.inversioneRialzista(last)}")
+            # print(f"self.vengoDaRialzo(terzultima, quartultima, quintultima): {self.vengoDaRibasso(terzultima, quartultima, quintultima)}")
+            # print(f"MASSIMO PRECEDENTE: {last['low']}")
+            # print(f"MINIMO PRECEDENTE: {last['high']}")
+            # print(f"ORARIO: {last['ctmString']}")
+            # print("\n\n")
 
             return True
         else:
             return False
-    
-    def isLittleBodyRib(self, candle):
-        return abs((candle['open'] + candle['close']) - candle['open']) <= (abs((candle['open'] + candle['high'])) -  abs((candle['open'] + candle['close']))) / DIVISORE_GRANDEZZA_CANDELA
 
-    def isLittleBodyRalz(self, candle):
-        return abs((candle['open'] + candle['close']) - candle['open']) <= (abs((candle['open'] + candle['low'])) -  abs((candle['open'] + candle['close']))) / DIVISORE_GRANDEZZA_CANDELA
+
+    def haveLittleBodyRib(self, candle):
+
+        if(candle['close'] >= 0 ):
+
+            if(abs(self.chiusura(candle) - self.exactPrice(candle['open'])) <= abs((self.highPrice(candle) - self.chiusura(candle))) / DIVISORE_GRANDEZZA_CANDELA):
+
+                # print(f"RiBASSO candela verde: \nDifferenza tra chiusura e apertura(corpo): {abs(self.chiusura(candle) - self.exactPrice(candle['open']))}\n1/3 di ombra sup: {abs((self.highPrice(candle) - self.chiusura(candle))) / DIVISORE_GRANDEZZA_CANDELA} +")
+                # print(f"abs((self.highPrice(candle) _> {abs(self.highPrice(candle))}")
+                # print("LITTE BODY RIBASSO TRUE")
+
+                # plotta(self.exactPrice(candle['open']) , self.chiusura(candle) , self.highPrice(candle), self.lowPrice(candle), candle['close'] )
+
+                return True
+        else:
+
+            if(abs(self.chiusura(candle) - self.exactPrice(candle['open'])) <= abs((self.highPrice(candle) - self.exactPrice(candle['open']))) / DIVISORE_GRANDEZZA_CANDELA):
+                # print(f"RiBASSO candela ROSSA: \nDifferenza tra chiusura e apertura(corpo): {abs(self.chiusura(candle) - self.exactPrice(candle['open']))}\n1/3 di ombra sup: {abs((self.highPrice(candle) - self.exactPrice(candle['open']))) / DIVISORE_GRANDEZZA_CANDELA} +")
+                # print(f"abs((self.highPrice(candle) _> {abs(self.highPrice(candle))}")
+                # print("LITTE BODY RIBASSO TRUE")
+                # plotta(self.exactPrice(candle['open']) , self.chiusura(candle) , self.highPrice(candle), self.lowPrice(candle), candle['close'] )
+
+                return True
+        return False
+
+
+    def haveLittleBodyRialz(self, candle):
+
+        if(candle['close'] >= 0 ):
+
+            if(abs(self.chiusura(candle) - self.exactPrice(candle['open'])) <= abs((self.lowPrice(candle) - self.exactPrice(candle['open']))) / DIVISORE_GRANDEZZA_CANDELA):
+                # print(f"Rialzo candela verde: \nDifferenza tra chiusura e apertura(corpo): {abs(self.chiusura(candle) - self.exactPrice(candle['open']))}\n1/3 di ombra sup: {abs((self.lowPrice(candle) - self.exactPrice(candle['open']))) / DIVISORE_GRANDEZZA_CANDELA}")
+                # print(f"abs((self.lowPrice(candle) _> {abs(self.lowPrice(candle))}")
+                # print("LITTE BODY RIALZO TRUE")
+                # plotta(self.exactPrice(candle['open']) , self.chiusura(candle) , self.highPrice(candle), self.lowPrice(candle), candle['close'] )
+
+                return True
+        else:
+
+            if(abs(self.chiusura(candle) - self.exactPrice(candle['open'])) <= abs((self.lowPrice(candle) - self.chiusura(candle))) / DIVISORE_GRANDEZZA_CANDELA):
+                # print(f"Rialzo candela rossa: \nDifferenza tra chiusura e apertura(corpo): {abs(self.chiusura(candle) - self.exactPrice(candle['open']))}\n1/3 di ombra sup: {abs((self.lowPrice(candle) - self.chiusura(candle))) / DIVISORE_GRANDEZZA_CANDELA}")
+                # print(f"abs((self.lowPrice(candle) _> {abs(self.lowPrice(candle))}")
+                # print("LITTE BODY RIALZO TRUE")
+                # plotta(self.exactPrice(candle['open']) , self.chiusura(candle) , self.highPrice(candle), self.lowPrice(candle), candle['close'] )
+
+
+                return True
+
+        return False
+
 
 
     def getLastCharInfoForPeriod(self, period):
@@ -219,7 +268,7 @@ class XTBot:
             self.minuti_timestamp_get_charts = MINUTI_TIMESTAMP_GET_CHART_1_MIN
         elif(period==5):
             self.minuti_timestamp_get_charts = MINUTI_TIMESTAMP_GET_CHART_5_MIN
- 
+
         minutesAgo = datetime.datetime.now() - datetime.timedelta(minutes=self.minuti_timestamp_get_charts)
 
         minutesAgo = "{:10.3f}".format(minutesAgo.timestamp()).replace('.', '')
@@ -239,7 +288,7 @@ class XTBot:
             sleep(.3)
 
         return lastChartsInfo
-       
+
 
 
     def calcolaRsi(self):
@@ -298,7 +347,7 @@ class XTBot:
         # print(ff'RSI {round(rsi, 2)} - PERIODI:  {PERIODO_RSI}', end='\r')
         self.rsi = rsi
         return rsi
-    
+
     def makeSomeMoney(self):
         while True:
 
@@ -312,8 +361,10 @@ class XTBot:
 
 
                 lastChartsInfo = self.getLastCharInfoForPeriod(PERIODO_CHARTS)
+                # lastChartsInfo = getCharts()
 
                 lastChartsInfoReverted = lastChartsInfo
+
 
                 current = lastChartsInfoReverted[len(lastChartsInfoReverted)-1]
                 last = lastChartsInfoReverted[len(lastChartsInfoReverted)-2]
@@ -321,12 +372,17 @@ class XTBot:
                 quartultima = lastChartsInfoReverted[len(lastChartsInfoReverted)-4]
                 quintultima = lastChartsInfoReverted[len(lastChartsInfoReverted)-5]
 
+                self.checkRialzistaInversion(current, last, terzultima, quartultima, quintultima)
+                self.checkRibassistaInversion(current, last, terzultima, quartultima, quintultima)
+
                 print(f'RSI: {round(rsi,2)}                                                              ',end="\r")
+
+                # plotta(last['open'] / pow(10, self.precision), self.chiusura(last), self.highPrice(last), self.lowPrice(last), last['close'] )
 
                 if(self.checkRSIIfInBuyRange(rsi) and self.checkRialzistaInversion(current, last, terzultima, quartultima, quintultima)):
 
                         self.openBuyTradeInversion(self.lowPrice(last))
-               
+
 
                 if(self.checkRSIIfInSellRange(rsi) and self.checkRibassistaInversion(current, last, terzultima, quartultima, quintultima)):
 
@@ -334,36 +390,36 @@ class XTBot:
 
 
             else:
-                
+
                 if(openedTrade != None):
 
                     profitto = openedTrade['profit']
-                    
+
                     if(profitto == None):
                         symbolInfo = self.getSymbol()
                         prezzoAcquisto = symbolInfo['returnData']['bid']
                         prezzoVendita = symbolInfo['returnData']['ask']
-                        
+
                         profitto = self.calcolaProfitto(openedTrade['cmd'], openedTrade['open_price'], prezzoAcquisto if openedTrade['cmd'] == TransactionSide.BUY else prezzoVendita)
                         logger.info(f"\n#########\nError retrieving profit. Calculated profit: {profitto}\n#########")
 
 
                     print(f'RSI: {round(rsi,2)} - Profit: {GREEN} {profitto} {RESET}      ',end="\r") if profitto >= 0 else print(f'RSI: {round(rsi,2)} - Profit: {RED} {profitto} {RESET}      ',end="\r")
                     # print(f'Profit: {GREEN} {profitto} {RESET}      ',end="\r") if profitto >= 0 else print(f'Profit: {RED} {profitto} {RESET}      ',end="\r")
-                    
-                    
-                    
+
+
+
                     cmdd = openedTrade['cmd']
 
                     if((cmdd == TransactionSide.BUY and rsi > VALORE_ALTO_RSI and profitto != None and  openedTrade['offset'] <= 0 and profitto>self.minimum_tp_value )):
 
                         logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS_ALTO}\n#########")
                         modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, VALORE_TRALING_STOP_LOSS_ALTO)['status']
-                        
+
                         print(f"Modify trade result: {GREEN} {modifyResult} {RESET}") if modifyResult == True else print(f"Modify trade result: {RED} {modifyResult} {RESET}")
-                    
+
                     elif((cmdd == TransactionSide.SELL and rsi < VALORE_BASSO_RSI and profitto != None and  openedTrade['offset'] <= 0 and profitto>self.minimum_tp_value)):
-                        
+
                         logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS_ALTO}\n#########")
                         modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, VALORE_TRALING_STOP_LOSS_ALTO)['status']
 
@@ -374,7 +430,7 @@ class XTBot:
 
                         print(f"Modify trade result: {GREEN} {modifyResult} {RESET}") if modifyResult == True else print(f"Modify trade result: {RED} {modifyResult} {RESET}")
 
-                  
+
             sleep(1)
 
 
