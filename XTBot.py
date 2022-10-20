@@ -16,7 +16,7 @@ class XTBot:
     def __init__(self, symbol, autostart=True):
         self.symbol = symbol
         self.checkSymbolConfig()
-        self.minuti_timestamp_get_charts = MINUTI_TIMESTAMP_GET_CHART
+        self.minuti_timestamp_get_charts = MINUTI_TIMESTAMP_GET_CHART_1_MIN
         self.minimum_tp_value = MINIMUM_TP_VALUE * MULTYPLIER
         self.client = APIClient()
         self.login()
@@ -51,37 +51,37 @@ class XTBot:
     # def getExactClosePrice(price, close, digits):
     #     return getExactPrice(price, digits) + getExactPrice(close, digits)
 
-    def openBuyTrade(self):
+    # def openBuyTrade(self):
 
-        symbolInfo = self.getSymbol()
-        prezzoVendita = symbolInfo['returnData']['ask']
-        precision = symbolInfo['returnData']['precision']
-        pips = self.getCorrectStopLoss(TransactionSide.BUY, prezzoVendita, precision)
-        sl = round(prezzoVendita - pips, precision)
+    #     symbolInfo = self.getSymbol()
+    #     prezzoVendita = symbolInfo['returnData']['ask']
+    #     precision = symbolInfo['returnData']['precision']
+    #     pips = self.getCorrectStopLoss(TransactionSide.BUY, prezzoVendita, precision)
+    #     sl = round(prezzoVendita - pips, precision)
         
-        logger.info(f"\n#########\nOpen position: BUY\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{self.rsi}\n#########")
+    #     logger.info(f"\n#########\nOpen position: BUY\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{self.rsi}\n#########")
 
-        order = self.client.commandExecute('tradeTransaction', dict(tradeTransInfo=dict(cmd=TransactionSide.BUY, symbol=SYMBOL, price=TRADE_PRICE, sl=sl, tp=0, type=TransactionType.ORDER_OPEN, volume=self.lotMin)))
-        if(order['status']):
-            self.order = order['returnData']['order']
-        else:
-            print("ERROR: ",order)
+    #     order = self.client.commandExecute('tradeTransaction', dict(tradeTransInfo=dict(cmd=TransactionSide.BUY, symbol=SYMBOL, price=TRADE_PRICE, sl=sl, tp=0, type=TransactionType.ORDER_OPEN, volume=self.lotMin)))
+    #     if(order['status']):
+    #         self.order = order['returnData']['order']
+    #     else:
+    #         print("ERROR: ",order)
 
-    def openSellTrade(self):
+    # def openSellTrade(self):
 
-        symbolInfo = self.getSymbol()
-        prezzoAcquisto = symbolInfo['returnData']['bid']
-        precision = symbolInfo['returnData']['precision']
-        pips = self.getCorrectStopLoss(TransactionSide.SELL, prezzoAcquisto, precision)
-        sl = round(prezzoAcquisto + pips, precision)
+    #     symbolInfo = self.getSymbol()
+    #     prezzoAcquisto = symbolInfo['returnData']['bid']
+    #     precision = symbolInfo['returnData']['precision']
+    #     pips = self.getCorrectStopLoss(TransactionSide.SELL, prezzoAcquisto, precision)
+    #     sl = round(prezzoAcquisto + pips, precision)
        
-        logger.info(f"\n#########\nOpen position: SELL\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{self.rsi}\n#########")
+    #     logger.info(f"\n#########\nOpen position: SELL\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{self.rsi}\n#########")
 
-        order = self.client.commandExecute('tradeTransaction', dict(tradeTransInfo=dict(cmd=TransactionSide.SELL, symbol=SYMBOL, price=TRADE_PRICE, sl=sl, tp=0, type=TransactionType.ORDER_OPEN, volume=self.lotMin)))
-        if(order['status']):
-            self.order = order['returnData']['order']
-        else:
-            print("ERROR: ",order)
+    #     order = self.client.commandExecute('tradeTransaction', dict(tradeTransInfo=dict(cmd=TransactionSide.SELL, symbol=SYMBOL, price=TRADE_PRICE, sl=sl, tp=0, type=TransactionType.ORDER_OPEN, volume=self.lotMin)))
+    #     if(order['status']):
+    #         self.order = order['returnData']['order']
+    #     else:
+    #         print("ERROR: ",order)
 
     def openBuyTradeInversion(self, sl):
 
@@ -112,15 +112,15 @@ class XTBot:
     def getProfitCalculation(self, cmd, openPrice, closePrice):
         return self.client.commandExecute('getProfitCalculation', dict(symbol=SYMBOL, volume=self.lotMin, cmd=cmd, openPrice=openPrice, closePrice=closePrice))['returnData']['profit']
 
-    def calculateSLBuyOrSell(self, cmd, prezzo, precision, pips):
-        if(cmd == TransactionSide.BUY):
-            prezzoChiusura = round(prezzo - pips, precision)
-        else:
-            prezzoChiusura = round(prezzo + pips, precision)
+    # def calculateSLBuyOrSell(self, cmd, prezzo, precision, pips):
+    #     if(cmd == TransactionSide.BUY):
+    #         prezzoChiusura = round(prezzo - pips, precision)
+    #     else:
+    #         prezzoChiusura = round(prezzo + pips, precision)
         
-        return prezzoChiusura
+    #     return prezzoChiusura
 
-    def getCorrectStopLoss(self, cmd, prezzo, precision):
+    # def getCorrectStopLoss(self, cmd, prezzo, precision):
         logger.debug("Prezzo apertura:", prezzo)
         logger.debug("Cmd:", cmd)
         logger.debug("Precision:", precision)
@@ -141,32 +141,11 @@ class XTBot:
 
     def checkRSIIfInBuyRange(self, rsi):
         return(int(rsi) < (int(VALORE_BASSO_RSI)))
-        # TODO: niente range co controllo operazione precedente
-        # return(int(rsi) in range(int(VALORE_BASSO_RSI), int(VALORE_BASSO_RSI - VALORE_SCARTO_RSI)))
                     
 
     def checkRSIIfInSellRange(self, rsi):
         return(int(rsi) > (int(VALORE_ALTO_RSI)))
-        # TODO: niente range co controllo operazione precedente
-        # return(int(rsi) in range(int(VALORE_ALTO_RSI), int(VALORE_ALTO_RSI + VALORE_SCARTO_RSI)))
     
-    # def checkIfLastTradeIsOk(self, cmd):
-    #     yesterady = datetime.datetime.now() - datetime.timedelta(days=1)
-    #     yesterady = "{:10.3f}".format(yesterady.timestamp()).replace('.', '')
-    #     print(yesterady)
-    #     trades = self.client.commandExecute('getTradesHistory', dict(end=0, start=int(yesterady)))['returnData']
-    #     # trades = trades[::-1]
-    #     trade = next((x for x in trades if x['symbol'] == SYMBOL and x['cmd'] == cmd), None) if len(trades) > 0 else None
-
-    #     if(trade != None):
-    #         if(trade['profit'] > 0):
-    #             return True
-    #         else:
-    #             return False
-    #     else:
-    #         return True
-
-
     def chiusura(self, candle):
         return candle['open'] + candle['close']
     
@@ -237,9 +216,9 @@ class XTBot:
     def getLastCharInfoForPeriod(self, period):
 
         if(period==1):
-            self.minuti_timestamp_get_charts = MINUTI_TIMESTAMP_GET_CHART
+            self.minuti_timestamp_get_charts = MINUTI_TIMESTAMP_GET_CHART_1_MIN
         elif(period==5):
-            self.minuti_timestamp_get_charts = 80
+            self.minuti_timestamp_get_charts = MINUTI_TIMESTAMP_GET_CHART_5_MIN
  
         minutesAgo = datetime.datetime.now() - datetime.timedelta(minutes=self.minuti_timestamp_get_charts)
 
@@ -267,8 +246,6 @@ class XTBot:
 
         lastChartsInfo = self.getLastCharInfoForPeriod(PERIODO_CHARTS)
 
-        # lastChartsInfoReverted = sorted(lastChartsInfo, key=lambda x: x['ctm'], reverse=True)
-
         logger.debug(f'LAST CHARTS LENGTH: {len(lastChartsInfo)}')
 
         prezziChiusura = []
@@ -277,8 +254,6 @@ class XTBot:
                 current = lastChartsInfo[i]
                 prezziChiusura.append(current['open'] + current['close'])
 
-        # prezziChiusuraReverted = prezziChiusura[::-1]
-        # prezziChiusura = prezziChiusura[::-1]
 
         lastSymbolVal = self.getSymbol()
         bid = lastSymbolVal['returnData']['bid']
@@ -320,9 +295,7 @@ class XTBot:
         rsi = 100 - (100 / (1 + rs))
 
         # logger.info(f'RSI {round(rsi, 2)} - PERIODI:  {PERIODO_RSI}')
-        # print(f'RSI 14 : {round(rsi, 2)}', end='\r')
-
-        self.rsi = rsi
+        # print(ff'RSI {round(rsi, 2)} - PERIODI:  {PERIODO_RSI}', end='\r')
 
         return rsi
     
@@ -337,19 +310,6 @@ class XTBot:
 
             if(len(openedTrades) <= 0 or openedTrade == None):
 
-                # logger.debug("Non ho trade aperti oppure non trovo un trade con qursto symbol")
-                # logger.debug("RSI:", round(rsi,2))
-                # logger.debug(f"RSI:{int(rsi)} BASSO: {int(VALORE_BASSO_RSI)} SCARTO: {int(VALORE_BASSO_RSI - VALORE_SCARTO_RSI)}")
-                # logger.debug(f"RSI:{int(rsi)} ALTO: {int(VALORE_ALTO_RSI)} SCARTO: {int(VALORE_ALTO_RSI + VALORE_SCARTO_RSI)}")
-
-
-
-                # logger.debug("previuoso rsi", self.previousRsi)
-                # logger.debug("Currrenti rsi", rsi)
-                # logger.debug("\n\n")
-                
-                # if(int(rsi) in range(int(VALORE_BASSO_RSI), int(VALORE_BASSO_RSI - VALORE_SCARTO_RSI)) and self.rialzo == True):
-                # if((self.checkRSIIfInBuyRange(rsi) and self.rialzo == True) or (self.previousRsi != 0 and rsi > self.previousRsi and self.rialzo == True)):
 
                 lastChartsInfo = self.getLastCharInfoForPeriod(PERIODO_CHARTS)
 
@@ -361,23 +321,17 @@ class XTBot:
                 quartultima = lastChartsInfoReverted[len(lastChartsInfoReverted)-4]
                 quintultima = lastChartsInfoReverted[len(lastChartsInfoReverted)-5]
 
-                # print("CURRENT:", current['ctmString'])
-                # print("last:", last['ctmString'])
-                # print("terzultima:", terzultima['ctmString'])
                 print(f'RSI: {round(rsi,2)}                                                              ',end="\r")
 
                 if(self.checkRSIIfInBuyRange(rsi) and self.checkRialzistaInversion(current, last, terzultima, quartultima, quintultima)):
 
                         self.openBuyTradeInversion(self.lowPrice(last))
                
-                # if(int(rsi) in range(int(VALORE_ALTO_RSI), int(VALORE_ALTO_RSI + VALORE_SCARTO_RSI)) and self.rialzo == False):
-                # if((self.checkRSIIfInSellRange(rsi)and self.rialzo == False) or (self.previousRsi != 0 and rsi < self.previousRsi and self.rialzo == False)):
+
                 if(self.checkRSIIfInSellRange(rsi) and self.checkRibassistaInversion(current, last, terzultima, quartultima, quintultima)):
 
                         self.openSellTradeInversion(self.highPrice(last))
 
-                    
-                # self.previousRsi = rsi
 
             else:
                 
