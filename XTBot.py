@@ -6,7 +6,6 @@ from configs.userConfigs import USER_ID, PASSWORD
 from configs.tradingConfig import *
 from configs.generalConfigs import *
 from configs.symbolConfig import getConfigBySymbol
-from tests.testRibassoRialzo import getCharts
 from utils.systemUtils import waitForClose
 import datetime
 from tests.testplot import plotta
