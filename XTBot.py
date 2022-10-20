@@ -23,10 +23,9 @@ class XTBot:
         self.symbolInfo = self.getSymbol()
         self.lotMin = self.symbolInfo['returnData']['lotMin'] * MULTYPLIER
         self.previousRsi = 0
-        logger.debug(autostart)
+        print(f"######### BOT started for {SYMBOL} #########")
         if(autostart):
             self.makeSomeMoney()
-            # self.tryyy()
     
     def login(self):
             loginResponse = self.client.execute(loginCommand(userId=USER_ID, password=PASSWORD))
@@ -130,39 +129,22 @@ class XTBot:
         # TODO: niente range co controllo operazione precedente
         # return(int(rsi) in range(int(VALORE_ALTO_RSI), int(VALORE_ALTO_RSI + VALORE_SCARTO_RSI)))
     
-    def checkIfLastTradeIsOk(self, cmd):
-        return True
-        yesterady = datetime.datetime.now() - datetime.timedelta(days=1)
-        yesterady = "{:10.3f}".format(yesterady.timestamp()).replace('.', '')
-        print(yesterady)
-        trades = self.client.commandExecute('getTradesHistory', dict(end=0, start=int(yesterady)))['returnData']
-        # trades = trades[::-1]
-        trade = next((x for x in trades if x['symbol'] == SYMBOL and x['cmd'] == cmd), None) if len(trades) > 0 else None
+    # def checkIfLastTradeIsOk(self, cmd):
+    #     yesterady = datetime.datetime.now() - datetime.timedelta(days=1)
+    #     yesterady = "{:10.3f}".format(yesterady.timestamp()).replace('.', '')
+    #     print(yesterady)
+    #     trades = self.client.commandExecute('getTradesHistory', dict(end=0, start=int(yesterady)))['returnData']
+    #     # trades = trades[::-1]
+    #     trade = next((x for x in trades if x['symbol'] == SYMBOL and x['cmd'] == cmd), None) if len(trades) > 0 else None
 
-        if(trade != None):
-            if(trade['profit'] > 0):
-                return True
-            else:
-                return False
-        else:
-            return True
+    #     if(trade != None):
+    #         if(trade['profit'] > 0):
+    #             return True
+    #         else:
+    #             return False
+    #     else:
+    #         return True
 
-    def checkIfLastAlternativeTradeIsOk(self, cmd):
-        return True
-        yesterady = datetime.datetime.now() - datetime.timedelta(days=1)
-        yesterady = "{:10.3f}".format(yesterady.timestamp()).replace('.', '')
-        print(yesterady)
-        trades = self.client.commandExecute('getTradesHistory', dict(end=0, start=int(yesterady)))['returnData']
-        # trades = trades[::-1]
-        trade = next((x for x in trades if x['symbol'] == SYMBOL and x['cmd'] == cmd and x['customComment'] == 'KO'), None) if len(trades) > 0 else None
-
-        if(trade != None):
-            if(trade['profit'] > 0):
-                return True
-            else:
-                return False
-        else:
-            return True
 
     def chiusura(self, candle):
         return candle['open'] + candle['close']
@@ -279,7 +261,7 @@ class XTBot:
         rsi = 100 - (100 / (1 + rs))
 
         # logger.info(f'RSI {round(rsi, 2)} - PERIODI:  {PERIODO_RSI}')
-        print(f'RSI 14 : {round(rsi, 2)}', end='\r')
+        # print(f'RSI 14 : {round(rsi, 2)}', end='\r')
 
         self.rsi = rsi
 
@@ -323,6 +305,7 @@ class XTBot:
                 # print("CURRENT:", current['ctmString'])
                 # print("last:", last['ctmString'])
                 # print("terzultima:", terzultima['ctmString'])
+                print(f'RSI: {round(rsi,2)}     ',end="\r")
 
                 if(self.checkRSIIfInBuyRange(rsi) and self.checkRialzistaInversion(current, last, terzultima, quartultima, quintultima)):
 
@@ -338,10 +321,7 @@ class XTBot:
                 # self.previousRsi = rsi
 
             else:
-                # openedTrade = next((x for x in openedTrades if x['symbol'] == SYMBOL), None)
                 
-                logger.debug("esiste un trade con questo symbol")
-
                 if(openedTrade != None):
 
                     profitto = openedTrade['profit']
@@ -360,10 +340,7 @@ class XTBot:
                     
                     
                     
-                    # if(profitto != None and  openedTrade['offset'] <= 0 and profitto>self.minimum_tp_value):
                     cmdd = openedTrade['cmd']
-
-                    # print(f"RSI: {rsi} \n")
 
                     if((cmdd == TransactionSide.BUY and rsi > VALORE_ALTO_RSI and profitto != None and  openedTrade['offset'] <= 0 and profitto>self.minimum_tp_value )):
 
@@ -387,35 +364,6 @@ class XTBot:
                   
             sleep(1)
 
-    def tryyy(self):
-        while True:
-            rsi = self.calcolaRsi()
-            openedTrades = self.getOpenedTrades()['returnData']
-            openedTrade = next((x for x in openedTrades if x['symbol'] == SYMBOL), None) if len(openedTrades) > 0 else None
-
-            if(len(openedTrades) <= 0 or openedTrade == None):
-                self.openBuyTrade("")   
-                self.openSellTrade("")
-            else:
-                for openedTrade in openedTrades:
-                    if(openedTrade['symbol'] == SYMBOL):
-                        symbolInfo = self.getSymbol()
-                        prezzoAcquisto = symbolInfo['returnData']['bid']
-                        prezzoVendita = symbolInfo['returnData']['ask']
-                        
-                        profitto = self.calcolaProfitto(openedTrade['cmd'], openedTrade['open_price'], prezzoAcquisto if openedTrade['cmd'] == TransactionSide.BUY else prezzoVendita)
-                        logger.info(f"\n#########\nError retrieving profit. Calculated profit: {profitto}\n#########")
-
-                        if((profitto != None and  openedTrade['offset'] <= 0 and (profitto>0.3 or profitto < 0))):
-
-                            logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS}\n#########")
-                            modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, 0)['status']
-
-                            print(f"Modify trade result: {GREEN} {modifyResult} {RESET}") if modifyResult == True else print(f"Modify trade result: {RED} {modifyResult} {RESET}")
-                    sleep(1)
-                sleep(1)
-
-print(f"######### BOT started for {SYMBOL} #########")
 
 try:
     xtbot = XTBot(SYMBOL)
