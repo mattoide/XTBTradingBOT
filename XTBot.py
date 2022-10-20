@@ -22,6 +22,7 @@ class XTBot:
         self.login()
         self.symbolInfo = self.getSymbol()
         self.lotMin = self.symbolInfo['returnData']['lotMin'] * MULTYPLIER
+        self.precision = self.symbolInfo['returnData']['precision']
         self.previousRsi = 0
         print(f"######### BOT started for {SYMBOL} #########")
         if(autostart):
@@ -74,6 +75,26 @@ class XTBot:
         pips = self.getCorrectStopLoss(TransactionSide.SELL, prezzoAcquisto, precision)
         sl = round(prezzoAcquisto + pips, precision)
        
+        logger.info(f"\n#########\nOpen position: SELL\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{self.rsi}\n#########")
+
+        order = self.client.commandExecute('tradeTransaction', dict(tradeTransInfo=dict(cmd=TransactionSide.SELL, symbol=SYMBOL, price=TRADE_PRICE, sl=sl, tp=0, type=TransactionType.ORDER_OPEN, volume=self.lotMin)))
+        if(order['status']):
+            self.order = order['returnData']['order']
+        else:
+            print("ERROR: ",order)
+
+    def openBuyTradeInversion(self, sl):
+
+        logger.info(f"\n#########\nOpen position: BUY\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{self.rsi}\n#########")
+
+        order = self.client.commandExecute('tradeTransaction', dict(tradeTransInfo=dict(cmd=TransactionSide.BUY, symbol=SYMBOL, price=TRADE_PRICE, sl=sl, tp=0, type=TransactionType.ORDER_OPEN, volume=self.lotMin)))
+        if(order['status']):
+            self.order = order['returnData']['order']
+        else:
+            print("ERROR: ",order)
+
+    def openSellTradeInversion(self, sl):
+
         logger.info(f"\n#########\nOpen position: SELL\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{self.rsi}\n#########")
 
         order = self.client.commandExecute('tradeTransaction', dict(tradeTransInfo=dict(cmd=TransactionSide.SELL, symbol=SYMBOL, price=TRADE_PRICE, sl=sl, tp=0, type=TransactionType.ORDER_OPEN, volume=self.lotMin)))
@@ -148,12 +169,18 @@ class XTBot:
 
     def chiusura(self, candle):
         return candle['open'] + candle['close']
+    
+    def highPrice(self, candle):
+        return (candle['open'] + candle['high']) / pow(10, self.precision)
+
+    def lowPrice(self, candle):
+        return (candle['open'] + candle['low']) / pow(10, self.precision)
 
     def inversioneRibassista(self, candle):
-        return candle['high'] > candle['low']*2
+        return abs(candle['high']) > abs(candle['low']*2)
 
     def inversioneRialzista(self, candle):
-        return candle['low'] < -candle['high']*2
+        return abs(candle['low']) > abs(candle['high']*2)
 
     def vengoDaRialzo(self, terzultima, quartultima, quintultima):
         return self.chiusura(terzultima) >  self.chiusura(quartultima) > self.chiusura(quintultima)
@@ -163,13 +190,35 @@ class XTBot:
         return self.chiusura(terzultima) <  self.chiusura(quartultima) < self.chiusura(quintultima)
 
     def checkRibassistaInversion(self, current, last, terzultima, quartultima, quintultima):
+
         if(self.chiusura(current) < self.chiusura(last) and self.inversioneRibassista(last) and self.vengoDaRialzo(terzultima, quartultima, quintultima)):
+            print("INVERSIONE RIBASSISTA")
+            print(f"CHIUSURA CORRENTE: {self.chiusura(current)}")
+            print(f"CHIUSURA PRECEDENTE: {self.chiusura(last)}")
+            print(f"self.chiusura(current) < self.chiusura(last): {self.chiusura(current) < self.chiusura(last)}")
+            print(f"self.inversioneRibassista(last): {self.inversioneRibassista(last)}")
+            print(f"self.vengoDaRialzo(terzultima, quartultima, quintultima): {self.vengoDaRialzo(terzultima, quartultima, quintultima)}")
+            print(f"MASSIMO PRECEDENTE: {last['high']}")
+            print(f"MINIMO PRECEDENTE: {last['low']}")
+            print(f"ORARIO: {last['ctmString']}")
             return True
         else:
             return False
 
     def checkRialzistaInversion(self, current, last, terzultima, quartultima, quintultima):
+
         if(self.chiusura(current) > self.chiusura(last) and self.inversioneRialzista(last) and self.vengoDaRibasso(terzultima, quartultima, quintultima)):
+            print("INVERSIONE RIBASSISTA")
+            print(f"CHIUSURA CORRENTE: {self.chiusura(current)}")
+            print(f"CHIUSURA PRECEDENTE: {self.chiusura(last)}")
+            print(f"self.chiusura(current) > self.chiusura(last): {self.chiusura(current) > self.chiusura(last)}")
+            print(f"self.inversioneRialzista(last): {self.inversioneRialzista(last)}")
+            print(f"self.vengoDaRialzo(terzultima, quartultima, quintultima): {self.vengoDaRibasso(terzultima, quartultima, quintultima)}")
+            print(f"MASSIMO PRECEDENTE: {last['low']}")
+            print(f"MINIMO PRECEDENTE: {last['high']}")
+            print(f"ORARIO: {last['ctmString']}")
+            print("\n\n")
+
             return True
         else:
             return False
@@ -305,17 +354,17 @@ class XTBot:
                 # print("CURRENT:", current['ctmString'])
                 # print("last:", last['ctmString'])
                 # print("terzultima:", terzultima['ctmString'])
-                print(f'RSI: {round(rsi,2)}     ',end="\r")
+                print(f'RSI: {round(rsi,2)}                                                              ',end="\r")
 
                 if(self.checkRSIIfInBuyRange(rsi) and self.checkRialzistaInversion(current, last, terzultima, quartultima, quintultima)):
 
-                        self.openBuyTrade()
+                        self.openBuyTradeInversion(self.lowPrice(last))
                
                 # if(int(rsi) in range(int(VALORE_ALTO_RSI), int(VALORE_ALTO_RSI + VALORE_SCARTO_RSI)) and self.rialzo == False):
                 # if((self.checkRSIIfInSellRange(rsi)and self.rialzo == False) or (self.previousRsi != 0 and rsi < self.previousRsi and self.rialzo == False)):
                 if(self.checkRSIIfInSellRange(rsi) and self.checkRibassistaInversion(current, last, terzultima, quartultima, quintultima)):
 
-                        self.openSellTrade()
+                        self.openSellTradeInversion(self.highPrice(last))
 
                     
                 # self.previousRsi = rsi
@@ -344,20 +393,20 @@ class XTBot:
 
                     if((cmdd == TransactionSide.BUY and rsi > VALORE_ALTO_RSI and profitto != None and  openedTrade['offset'] <= 0 and profitto>self.minimum_tp_value )):
 
-                        logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS}\n#########")
-                        modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, VALORE_TRALING_STOP_LOSS)['status']
+                        logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS_ALTO}\n#########")
+                        modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, VALORE_TRALING_STOP_LOSS_ALTO)['status']
                         
                         print(f"Modify trade result: {GREEN} {modifyResult} {RESET}") if modifyResult == True else print(f"Modify trade result: {RED} {modifyResult} {RESET}")
                     
                     elif((cmdd == TransactionSide.SELL and rsi < VALORE_BASSO_RSI and profitto != None and  openedTrade['offset'] <= 0 and profitto>self.minimum_tp_value)):
                         
-                        logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS}\n#########")
-                        modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, VALORE_TRALING_STOP_LOSS)['status']
+                        logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS_ALTO}\n#########")
+                        modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, VALORE_TRALING_STOP_LOSS_ALTO)['status']
 
                         print(f"Modify trade result: {GREEN} {modifyResult} {RESET}") if modifyResult == True else print(f"Modify trade result: {RED} {modifyResult} {RESET}")
-                    elif((openedTrade['offset'] <= 0 and  profitto>(self.minimum_tp_value*3))):
-                        logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS}\n#########")
-                        modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, VALORE_TRALING_STOP_LOSS)['status']
+                    elif((openedTrade['offset'] <= 0 and  profitto>(self.minimum_tp_value*5))):
+                        logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS_BASSO}\n#########")
+                        modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, VALORE_TRALING_STOP_LOSS_BASSO)['status']
 
                         print(f"Modify trade result: {GREEN} {modifyResult} {RESET}") if modifyResult == True else print(f"Modify trade result: {RED} {modifyResult} {RESET}")
 
