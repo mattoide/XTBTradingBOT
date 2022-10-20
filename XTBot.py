@@ -188,10 +188,14 @@ class XTBot:
 
     def vengoDaRibasso(self, terzultima, quartultima, quintultima):
         return self.chiusura(terzultima) <  self.chiusura(quartultima) < self.chiusura(quintultima)
+    
+    def isLittleBodyRib(self, candle):
+        return self.chiusura(candle) - candle['open'] <= (candle['open'] + candle['high']) - self.chiusura(candle)
+
 
     def checkRibassistaInversion(self, current, last, terzultima, quartultima, quintultima):
 
-        if(self.chiusura(current) < self.chiusura(last) and self.inversioneRibassista(last) and self.vengoDaRialzo(terzultima, quartultima, quintultima)):
+        if(self.chiusura(current) < self.chiusura(last) and self.inversioneRibassista(last) and self.vengoDaRialzo(terzultima, quartultima, quintultima) and self.isLittleBodyRib(last)):
             print("INVERSIONE RIBASSISTA")
             print(f"CHIUSURA CORRENTE: {self.chiusura(current)}")
             print(f"CHIUSURA PRECEDENTE: {self.chiusura(last)}")
@@ -207,7 +211,7 @@ class XTBot:
 
     def checkRialzistaInversion(self, current, last, terzultima, quartultima, quintultima):
 
-        if(self.chiusura(current) > self.chiusura(last) and self.inversioneRialzista(last) and self.vengoDaRibasso(terzultima, quartultima, quintultima)):
+        if(self.chiusura(current) > self.chiusura(last) and self.inversioneRialzista(last) and self.vengoDaRibasso(terzultima, quartultima, quintultima) and self.isLittleBodyRalz(last)):
             print("INVERSIONE RIBASSISTA")
             print(f"CHIUSURA CORRENTE: {self.chiusura(current)}")
             print(f"CHIUSURA PRECEDENTE: {self.chiusura(last)}")
@@ -222,6 +226,12 @@ class XTBot:
             return True
         else:
             return False
+    
+    def isLittleBodyRib(self, candle):
+        return abs((candle['open'] + candle['close']) - candle['open']) <= (abs((candle['open'] + candle['high'])) -  abs((candle['open'] + candle['close']))) / 3
+
+    def isLittleBodyRalz(self, candle):
+        return abs((candle['open'] + candle['close']) - candle['open']) <= (abs((candle['open'] + candle['low'])) -  abs((candle['open'] + candle['close']))) / 3
 
 
     def getLastCharInfoForPeriod(self, period):
@@ -404,7 +414,7 @@ class XTBot:
                         modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, VALORE_TRALING_STOP_LOSS_ALTO)['status']
 
                         print(f"Modify trade result: {GREEN} {modifyResult} {RESET}") if modifyResult == True else print(f"Modify trade result: {RED} {modifyResult} {RESET}")
-                    elif((openedTrade['offset'] <= 0 and  profitto>(self.minimum_tp_value*5))):
+                    elif((openedTrade['offset'] <= 0 and  profitto>(self.minimum_tp_value*3))):
                         logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS_BASSO}\n#########")
                         modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, VALORE_TRALING_STOP_LOSS_BASSO)['status']
 
