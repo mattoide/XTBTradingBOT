@@ -1,5 +1,11 @@
 # XTBTradingBOT
 
+
+
+> ##########   **__NOT A DEFINITIVE VERSION__**   ##########
+
+
+
 ###### Description
 This bot detect 2 inversion's patterns: **Bullish/Bearish Engulfing Pattern**, **Hammer** and **Shooting Star**. It's Open **BUY** or **SELL** position if RSI is in optimal range. The Bot scan if there is a profit in pips, and add trailing stop loss to the opened position.
 
