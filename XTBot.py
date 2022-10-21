@@ -159,7 +159,7 @@ class XTBot:
     def lowPrice(self, candle):
         return (candle['open'] + candle['low']) / pow(10, self.precision)
 
-    def inversioneRibassista(self, candle):
+    def isStar(self, candle):
         if(candle['close'] >= 0 ):
             if((self.highPrice(candle) - self.chiusura(candle)) > (self.exactPrice(candle['open']) - self.lowPrice(candle)) * DIVISORE_GRANDEZZA_CANDELA):
                 return True
@@ -169,7 +169,7 @@ class XTBot:
 
         return False       
 
-    def inversioneRialzista(self, candle):
+    def isHammer(self, candle):
         if(candle['close'] >= 0 ):
             if((self.exactPrice(candle['open']) - self.lowPrice(candle)) > (self.highPrice(candle) - self.chiusura(candle)) * DIVISORE_GRANDEZZA_CANDELA):
                 return True
@@ -179,7 +179,21 @@ class XTBot:
 
         return False   
 
-        
+    
+    def isBullishEngulfingFigure(self, candle1, candle2):
+        if( self.chiusura(candle1) > self.chiusura(candle2)):
+            print("isBullishEngulfingFigure")
+            print("Candela 1 orario:", candle1['ctmString'])   
+            print("Candela 2 orario:", candle2['ctmString'])   
+        return self.chiusura(candle1) > self.exactPrice(candle2['open'])
+
+    def isBearishEngulfingFigure(self, candle1, candle2):
+        if(self.chiusura(candle1) < self.chiusura(candle2)):
+            print("isBearishEngulfingFigure")
+            print("Candela 1 orario:", candle1['ctmString'])   
+            print("Candela 2 orario:", candle2['ctmString'])  
+        return self.chiusura(candle1) < self.exactPrice(candle2['open'])
+
     def vengoDaRialzo(self, candlesToCheck):
         # return self.chiusura(ultimaDelTrend) >  self.chiusura(penultimaDelTrend) > self.chiusura(terzultimaDelTrend) #TODO: vedere quante candle confrontare
         # return self.chiusura(ultimaDelTrend) >  self.chiusura(penultimaDelTrend)
@@ -216,15 +230,29 @@ class XTBot:
     def isRed(self, candle):
         return candle['close'] < 0
 
+    def isStarSignal(self, current, currentMeno1, lastIsHammerOrStar, candlesToCheck):
+        return self.isRed(currentMeno1) and self.chiusura(current) < self.chiusura(currentMeno1) and self.isStar(lastIsHammerOrStar) and self.vengoDaRialzo(candlesToCheck) and self.haveLittleBodyRib(lastIsHammerOrStar)
+   
+    def isHammerSignal(self, current, currentMeno1, lastIsHammerOrStar, candlesToCheck):
+        return self.isGreen(currentMeno1) and self.chiusura(current) > self.chiusura(currentMeno1) and self.isHammer(lastIsHammerOrStar) and self.vengoDaRibasso(candlesToCheck) and self.haveLittleBodyRialz(lastIsHammerOrStar)
+
+    def isBullishEngulfingSignal(self, current, currentMeno1, lastIsHammerOrStar, candlesToCheck):
+        return self.isGreen(currentMeno1) and self.chiusura(current) > self.chiusura(currentMeno1) and self.isBullishEngulfingFigure(lastIsHammerOrStar, candlesToCheck[0]) and self.vengoDaRibasso(candlesToCheck)
+    
+    def isBearishEngulfingSignal(self, current, currentMeno1, lastIsHammerOrStar, candlesToCheck):
+        return self.isRed(currentMeno1) and self.chiusura(current) < self.chiusura(currentMeno1) and self.isBearishEngulfingFigure(lastIsHammerOrStar, candlesToCheck[0]) and self.vengoDaRialzo(candlesToCheck)
+    
     def checkRibassistaInversion(self, current, currentMeno1, lastIsHammerOrStar, candlesToCheck):
 
-        if(self.isRed(currentMeno1) and self.chiusura(current) < self.chiusura(currentMeno1) and self.inversioneRibassista(lastIsHammerOrStar) and self.vengoDaRialzo(candlesToCheck) and self.haveLittleBodyRib(lastIsHammerOrStar)):
+        if(self.isStarSignal(current, currentMeno1, lastIsHammerOrStar, candlesToCheck) or self.isBearishEngulfingSignal(current, currentMeno1, lastIsHammerOrStar, candlesToCheck)):
+        # if(self.isStarSignal(current, currentMeno1, lastIsHammerOrStar, candlesToCheck)):
             print("INVERSIONE RIBASSISTA")
             print(f"CHIUSURA CORRENTE: {self.chiusura(current)}")
             print(f"CANDELA PRECEDENTE ROSSA: {self.isRed(currentMeno1)}")
             print(f"CHIUSURA PRECEDENTE: {self.chiusura(currentMeno1)}")
             print(f"CHIUSURA CORRENTE MINORE DELLA PRECEDENTE: {self.chiusura(current) < self.chiusura(currentMeno1)}")
-            print(f"HO UNA SHOOTING START: {self.inversioneRibassista(lastIsHammerOrStar)}")
+            print(f"HO UNA SHOOTING STAR: {self.isStar(lastIsHammerOrStar)}")
+            print(f"HO UN BEARUSH ENGULFING PATTERN: {self.isBearishEngulfingSignal(current, currentMeno1, lastIsHammerOrStar, candlesToCheck)}")
             print(f"STO VENENDO DA UN RIALZO: {self.vengoDaRialzo(candlesToCheck)}")
             print(f"ORARIO SEGNALE INVERSIONE: {lastIsHammerOrStar['ctmString']}")
             print("\n")
@@ -234,17 +262,21 @@ class XTBot:
         else:
             return False
 
+        
+
 
     def checkRialzistaInversion(self, current, currentMeno1, lastIsHammerOrStar, candlesToCheck):
 
-        if(self.isGreen(currentMeno1) and self.chiusura(current) > self.chiusura(currentMeno1) and self.inversioneRialzista(lastIsHammerOrStar) and self.vengoDaRibasso(candlesToCheck) and self.haveLittleBodyRialz(lastIsHammerOrStar)):
+        if(self.isHammerSignal(current, currentMeno1, lastIsHammerOrStar, candlesToCheck) or self.isBullishEngulfingSignal(current, currentMeno1, lastIsHammerOrStar, candlesToCheck)):
+        # if(self.isHammerSignal(current, currentMeno1, lastIsHammerOrStar, candlesToCheck)):
 
             print("INVERSIONE RIALZISTA")
             print(f"CHIUSURA CORRENTE: {self.chiusura(current)}")
             print(f"CANDELA PRECEDENTE VERDE: {self.isGreen(currentMeno1)}")
             print(f"CHIUSURA PRECEDENTE: {self.chiusura(currentMeno1)}")
             print(f"CHIUSURA CORRENTE MAGGIORE DELLA PRECEDENTE: {self.chiusura(current) > self.chiusura(currentMeno1)}")
-            print(f"HO UNA HAMMER: {self.inversioneRialzista(lastIsHammerOrStar)}")
+            print(f"HO UNA HAMMER: {self.isHammer(lastIsHammerOrStar)}")
+            print(f"HO UN BULLISH ENGULFING PATTERN: {self.isBullishEngulfingSignal(current, currentMeno1, lastIsHammerOrStar, candlesToCheck)}")
             print(f"STO VENENDO DA UN RIBASSO: {self.vengoDaRibasso(candlesToCheck)}")
             print(f"ORARIO SEGNALE INVERSIONE: {lastIsHammerOrStar['ctmString']}")
             print("\n")
