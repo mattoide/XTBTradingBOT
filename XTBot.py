@@ -19,6 +19,7 @@ class XTBot:
         self.checkSymbolConfig()
         self.minuti_timestamp_get_charts = MINUTI_TIMESTAMP_GET_CHART_1_MIN
         self.minimum_tp_value = MINIMUM_TP_VALUE * MULTYPLIER
+        self.stopLoss = 0
         self.client = APIClient()
         self.login()
         self.symbolInfo = self.getSymbol()
@@ -166,7 +167,8 @@ class XTBot:
         else:
              if((self.highPrice(candle) - self.exactPrice(candle['open'])) > (self.exactPrice(candle['open']) - self.lowPrice(candle)) *  DIVISORE_GRANDEZZA_CANDELA):
                 return True    
-
+        
+        self.stopLoss = self.highPrice(candle)
         return False       
 
     def isHammer(self, candle):
@@ -177,6 +179,7 @@ class XTBot:
             if((self.chiusura(candle) - self.lowPrice(candle)) > (self.highPrice(candle) - self.exactPrice(candle['open'])) * DIVISORE_GRANDEZZA_CANDELA):
                 return True    
 
+        self.stopLoss = self.lowPrice(candle)
         return False   
 
     
@@ -191,6 +194,12 @@ class XTBot:
             print("Candela 1 grandezza:", self.distanzaTraAperturaEChiusura(candle1))   
             print("Candela 2 orario:", candle2['ctmString'])   
             print("Candela 2 grandezza:", self.distanzaTraAperturaEChiusura(candle2))   
+            
+            if(self.lowPrice(candle1) < self.lowPrice(candle2)):
+                self.stopLoss = self.lowPrice(candle1)
+            else:
+                self.stopLoss = self.lowPrice(candle2)
+
         return (self.chiusura(candle1) > self.exactPrice(candle2['open'])) and self.distanzaTraAperturaEChiusura(candle1) > self.distanzaTraAperturaEChiusura(candle2)
 
     def isBearishEngulfingFigure(self, candle1, candle2):
@@ -199,7 +208,13 @@ class XTBot:
             print("Candela 1 orario:", candle1['ctmString'])   
             print("Candela 1 grandezza:", self.distanzaTraAperturaEChiusura(candle1))   
             print("Candela 2 orario:", candle2['ctmString'])   
-            print("Candela 2 grandezza:", self.distanzaTraAperturaEChiusura(candle2))    
+            print("Candela 2 grandezza:", self.distanzaTraAperturaEChiusura(candle2))   
+
+            if(self.lowPrice(candle1) < self.lowPrice(candle2)):
+                self.stopLoss = self.lowPrice(candle1)
+            else:
+                self.stopLoss = self.lowPrice(candle2)        
+        
         return (self.chiusura(candle1) < self.exactPrice(candle2['open'])) and self.distanzaTraAperturaEChiusura(candle1) > self.distanzaTraAperturaEChiusura(candle2)
 
     def vengoDaRialzo(self, candlesToCheck):
@@ -472,13 +487,13 @@ class XTBot:
 
                         print("Compro analizzando da candela corrende delle:",current['ctmString'] )
 
-                        self.openBuyTradeInversion(self.lowPrice(lastIsHammerOrStar))
+                        self.openBuyTradeInversion(self.stopLoss)
 
 
                 if(self.checkRSIIfInSellRange(rsi) and self.checkRibassistaInversion(current,currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend, terzultimaDelTrend])):
                         print("Vendo analizzando da candela corrende delle:",current['ctmString'] )
 
-                        self.openSellTradeInversion(self.highPrice(lastIsHammerOrStar))
+                        self.openSellTradeInversion(self.stopLoss)
 
 
             else:
