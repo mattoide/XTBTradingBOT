@@ -231,8 +231,8 @@ class XTBot:
             print(f"CHIUSURA CORRENTE MINORE DELLA PRECEDENTE: {self.chiusura(current) < self.chiusura(lastIsHammerOrStar)}")
             print(f"HO UNA SHOOTING START: {self.inversioneRibassista(lastIsHammerOrStar)}")
             print(f"STO VENENDO DA UN RIALZO: {self.vengoDaRialzo(candlesToCheck)}")
-            print(f"ORARIO: {lastIsHammerOrStar['ctmString']}")
-            print("\n\n")
+            print(f"ORARIO SEGNALE INVERSIONE: {lastIsHammerOrStar['ctmString']}")
+            print("\n")
 
 
             return True
@@ -260,8 +260,8 @@ class XTBot:
             print(f"CHIUSURA CORRENTE MAGGIORE DELLA PRECEDENTE: {self.chiusura(current) > self.chiusura(lastIsHammerOrStar)}")
             print(f"HO UNA HAMMER: {self.inversioneRibassista(lastIsHammerOrStar)}")
             print(f"STO VENENDO DA UN RIBASSO: {self.vengoDaRibasso(candlesToCheck)}")
-            print(f"ORARIO: {lastIsHammerOrStar['ctmString']}")
-            print("\n\n")
+            print(f"ORARIO SEGNALE INVERSIONE: {lastIsHammerOrStar['ctmString']}")
+            print("\n")
 
             return True
         else:
@@ -444,13 +444,13 @@ class XTBot:
 
                 if(self.checkRSIIfInBuyRange(rsi) and self.checkRialzistaInversion(current, currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend])):
 
-                        print("Compro analizzando da:",current['ctmString'] )
+                        print("Compro analizzando da candela corrende delle:",current['ctmString'] )
 
                         self.openBuyTradeInversion(self.lowPrice(lastIsHammerOrStar))
 
 
                 if(self.checkRSIIfInSellRange(rsi) and self.checkRibassistaInversion(current,currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend])):
-                        print("Vendo analizzando da:",current['ctmString'] )
+                        print("Vendo analizzando da candela corrende delle:",current['ctmString'] )
 
                         self.openSellTradeInversion(self.highPrice(lastIsHammerOrStar))
 
