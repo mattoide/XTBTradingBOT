@@ -186,24 +186,32 @@ class XTBot:
     def distanzaTraAperturaEChiusura(self, candle):
         return abs(self.chiusura(candle) - self.exactPrice(candle['open']))
 
+    def candela1InghiotteCandela2(self, candle1, candle2):
+        return self.highPrice(candle1) > self.highPrice(candle2) and self.lowPrice(candle1) < self.lowPrice(candle2)
+
+    def isGreen(self, candle):
+        return candle['close'] >= 0
+
+    def isRed(self, candle):
+        return candle['close'] < 0
     
     def isBullishEngulfingFigure(self, candle1, candle2):
-        if( self.chiusura(candle1) > self.chiusura(candle2) and self.distanzaTraAperturaEChiusura(candle1) > self.distanzaTraAperturaEChiusura(candle2)):
+        if(self.isGreen(candle1) and self.isRed(candle2) and  self.chiusura(candle1) > self.chiusura(candle2) and self.candela1InghiotteCandela2(candle1, candle2)):
             print("PATTERN isBullishEngulfingFigure")
             print("Candela 1 orario:", candle1['ctmString'])   
             print("Candela 1 grandezza:", self.distanzaTraAperturaEChiusura(candle1))   
             print("Candela 2 orario:", candle2['ctmString'])   
             print("Candela 2 grandezza:", self.distanzaTraAperturaEChiusura(candle2))   
-            
+
             if(self.lowPrice(candle1) < self.lowPrice(candle2)):
                 self.stopLoss = self.lowPrice(candle1)
             else:
                 self.stopLoss = self.lowPrice(candle2)
 
-        return (self.chiusura(candle1) > self.exactPrice(candle2['open'])) and self.distanzaTraAperturaEChiusura(candle1) > self.distanzaTraAperturaEChiusura(candle2)
+        return self.isGreen(candle1) and self.isRed(candle2) and  self.chiusura(candle1) > self.chiusura(candle2) and self.candela1InghiotteCandela2(candle1, candle2)
 
     def isBearishEngulfingFigure(self, candle1, candle2):
-        if(self.chiusura(candle1) < self.chiusura(candle2) and self.distanzaTraAperturaEChiusura(candle1) > self.distanzaTraAperturaEChiusura(candle2)):
+        if(self.isRed(candle1) and self.isGreen(candle2) and self.chiusura(candle1) < self.chiusura(candle2) and self.candela1InghiotteCandela2(candle1, candle2)):
             print("PATTERN isBearishEngulfingFigure")
             print("Candela 1 orario:", candle1['ctmString'])   
             print("Candela 1 grandezza:", self.distanzaTraAperturaEChiusura(candle1))   
@@ -215,7 +223,7 @@ class XTBot:
             else:
                 self.stopLoss = self.lowPrice(candle2)        
         
-        return (self.chiusura(candle1) < self.exactPrice(candle2['open'])) and self.distanzaTraAperturaEChiusura(candle1) > self.distanzaTraAperturaEChiusura(candle2)
+        return self.isRed(candle1) and self.isGreen(candle2) and self.chiusura(candle1) < self.chiusura(candle2) and self.candela1InghiotteCandela2(candle1, candle2)
 
     def vengoDaRialzo(self, candlesToCheck):
         # return self.chiusura(ultimaDelTrend) >  self.chiusura(penultimaDelTrend) > self.chiusura(terzultimaDelTrend) #TODO: vedere quante candle confrontare
