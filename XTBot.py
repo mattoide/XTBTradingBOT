@@ -180,19 +180,27 @@ class XTBot:
         return False   
 
     
+    def distanzaTraAperturaEChiusura(self, candle):
+        return abs(self.chiusura(candle) - self.exactPrice(candle['open']))
+
+    
     def isBullishEngulfingFigure(self, candle1, candle2):
-        if( self.chiusura(candle1) > self.chiusura(candle2)):
-            print("isBullishEngulfingFigure")
+        if( self.chiusura(candle1) > self.chiusura(candle2) and self.distanzaTraAperturaEChiusura(candle1) > self.distanzaTraAperturaEChiusura(candle2)):
+            print("PATTERN isBullishEngulfingFigure")
             print("Candela 1 orario:", candle1['ctmString'])   
+            print("Candela 1 grandezza:", self.distanzaTraAperturaEChiusura(candle1))   
             print("Candela 2 orario:", candle2['ctmString'])   
-        return self.chiusura(candle1) > self.exactPrice(candle2['open'])
+            print("Candela 2 grandezza:", self.distanzaTraAperturaEChiusura(candle2))   
+        return (self.chiusura(candle1) > self.exactPrice(candle2['open'])) and self.distanzaTraAperturaEChiusura(candle1) > self.distanzaTraAperturaEChiusura(candle2)
 
     def isBearishEngulfingFigure(self, candle1, candle2):
-        if(self.chiusura(candle1) < self.chiusura(candle2)):
-            print("isBearishEngulfingFigure")
+        if(self.chiusura(candle1) < self.chiusura(candle2) and self.distanzaTraAperturaEChiusura(candle1) > self.distanzaTraAperturaEChiusura(candle2)):
+            print("PATTERN isBearishEngulfingFigure")
             print("Candela 1 orario:", candle1['ctmString'])   
-            print("Candela 2 orario:", candle2['ctmString'])  
-        return self.chiusura(candle1) < self.exactPrice(candle2['open'])
+            print("Candela 1 grandezza:", self.distanzaTraAperturaEChiusura(candle1))   
+            print("Candela 2 orario:", candle2['ctmString'])   
+            print("Candela 2 grandezza:", self.distanzaTraAperturaEChiusura(candle2))    
+        return (self.chiusura(candle1) < self.exactPrice(candle2['open'])) and self.distanzaTraAperturaEChiusura(candle1) > self.distanzaTraAperturaEChiusura(candle2)
 
     def vengoDaRialzo(self, candlesToCheck):
         # return self.chiusura(ultimaDelTrend) >  self.chiusura(penultimaDelTrend) > self.chiusura(terzultimaDelTrend) #TODO: vedere quante candle confrontare
@@ -252,7 +260,7 @@ class XTBot:
             print(f"CHIUSURA PRECEDENTE: {self.chiusura(currentMeno1)}")
             print(f"CHIUSURA CORRENTE MINORE DELLA PRECEDENTE: {self.chiusura(current) < self.chiusura(currentMeno1)}")
             print(f"HO UNA SHOOTING STAR: {self.isStar(lastIsHammerOrStar)}")
-            print(f"HO UN BEARUSH ENGULFING PATTERN: {self.isBearishEngulfingSignal(current, currentMeno1, lastIsHammerOrStar, candlesToCheck)}")
+            # print(f"HO UN BEARUSH ENGULFING PATTERN: {self.isBearishEngulfingSignal(current, currentMeno1, lastIsHammerOrStar, candlesToCheck)}")
             print(f"STO VENENDO DA UN RIALZO: {self.vengoDaRialzo(candlesToCheck)}")
             print(f"ORARIO SEGNALE INVERSIONE: {lastIsHammerOrStar['ctmString']}")
             print("\n")
@@ -276,7 +284,7 @@ class XTBot:
             print(f"CHIUSURA PRECEDENTE: {self.chiusura(currentMeno1)}")
             print(f"CHIUSURA CORRENTE MAGGIORE DELLA PRECEDENTE: {self.chiusura(current) > self.chiusura(currentMeno1)}")
             print(f"HO UNA HAMMER: {self.isHammer(lastIsHammerOrStar)}")
-            print(f"HO UN BULLISH ENGULFING PATTERN: {self.isBullishEngulfingSignal(current, currentMeno1, lastIsHammerOrStar, candlesToCheck)}")
+            # print(f"HO UN BULLISH ENGULFING PATTERN: {self.isBullishEngulfingSignal(current, currentMeno1, lastIsHammerOrStar, candlesToCheck)}")
             print(f"STO VENENDO DA UN RIBASSO: {self.vengoDaRibasso(candlesToCheck)}")
             print(f"ORARIO SEGNALE INVERSIONE: {lastIsHammerOrStar['ctmString']}")
             print("\n")
