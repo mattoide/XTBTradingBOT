@@ -210,25 +210,20 @@ class XTBot:
                 
         return rialzo
 
+    def isGreen(self, candle):
+        return candle['close'] >= 0
+
+    def isRed(self, candle):
+        return candle['close'] < 0
 
     def checkRibassistaInversion(self, current, currentMeno1, lastIsHammerOrStar, candlesToCheck):
 
-
-        # print("INVERSIONE RIBASSISTA")
-        # print(f"CHIUSURA CORRENTE: {self.chiusura(current)}")
-        # print(f"CHIUSURA PRECEDENTE: {self.chiusura(lastIsHammerOrStar)}")
-        # print(f"self.chiusura(current) < self.chiusura(last): {self.chiusura(current) < self.chiusura(lastIsHammerOrStar)}")
-        # print(f"self.inversioneRibassista(last): {self.inversioneRibassista(lastIsHammerOrStar)}")
-        # print(f"self.vengoDaRialzo(ultimaDelTrend, penultimaDelTrend, terzultimaDelTrend): {self.vengoDaRialzo(candlesToCheck)}")
-        # print(f"MASSIMO PRECEDENTE: {lastIsHammerOrStar['high']}")
-        # print(f"MINIMO PRECEDENTE: {lastIsHammerOrStar['low']}")
-        # print(f"ORARIO: {lastIsHammerOrStar['ctmString']}")
-
-        if(self.chiusura(current) < self.chiusura(currentMeno1) and self.inversioneRibassista(lastIsHammerOrStar) and self.vengoDaRialzo(candlesToCheck) and self.haveLittleBodyRib(lastIsHammerOrStar)):
+        if(self.isRed(currentMeno1) and self.chiusura(current) < self.chiusura(currentMeno1) and self.inversioneRibassista(lastIsHammerOrStar) and self.vengoDaRialzo(candlesToCheck) and self.haveLittleBodyRib(lastIsHammerOrStar)):
             print("INVERSIONE RIBASSISTA")
             print(f"CHIUSURA CORRENTE: {self.chiusura(current)}")
-            print(f"CHIUSURA PRECEDENTE: {self.chiusura(lastIsHammerOrStar)}")
-            print(f"CHIUSURA CORRENTE MINORE DELLA PRECEDENTE: {self.chiusura(current) < self.chiusura(lastIsHammerOrStar)}")
+            print(f"CANDELA PRECEDENTE ROSSA: {self.isRed(currentMeno1)}")
+            print(f"CHIUSURA PRECEDENTE: {self.chiusura(currentMeno1)}")
+            print(f"CHIUSURA CORRENTE MINORE DELLA PRECEDENTE: {self.chiusura(current) < self.chiusura(currentMeno1)}")
             print(f"HO UNA SHOOTING START: {self.inversioneRibassista(lastIsHammerOrStar)}")
             print(f"STO VENENDO DA UN RIALZO: {self.vengoDaRialzo(candlesToCheck)}")
             print(f"ORARIO SEGNALE INVERSIONE: {lastIsHammerOrStar['ctmString']}")
@@ -239,25 +234,16 @@ class XTBot:
         else:
             return False
 
+
     def checkRialzistaInversion(self, current, currentMeno1, lastIsHammerOrStar, candlesToCheck):
 
-        # print("INVERSIONE RIALZISTA")
-        # print(f"CHIUSURA CORRENTE: {self.chiusura(current)}")
-        # print(f"CHIUSURA PRECEDENTE: {self.chiusura(lastIsHammerOrStar)}")
-        # print(f"self.chiusura(current) > self.chiusura(last): {self.chiusura(current) > self.chiusura(lastIsHammerOrStar)}")
-        # print(f"self.inversioneRialzista(last): {self.inversioneRialzista(lastIsHammerOrStar)}")
-        # print(f"self.vengoDaRialzo(ultimaDelTrend, penultimaDelTrend, terzultimaDelTrend): {self.vengoDaRibasso(candlesToCheck)}")
-        # print(f"MASSIMO PRECEDENTE: {lastIsHammerOrStar['low']}")
-        # print(f"MINIMO PRECEDENTE: {lastIsHammerOrStar['high']}")
-        # print(f"ORARIO: {lastIsHammerOrStar['ctmString']}")
-        # print("\n\n")
-
-        if(self.chiusura(current) > self.chiusura(currentMeno1) and self.inversioneRialzista(lastIsHammerOrStar) and self.vengoDaRibasso(candlesToCheck) and self.haveLittleBodyRialz(lastIsHammerOrStar)):
+        if(self.isGreen(currentMeno1) and self.chiusura(current) > self.chiusura(currentMeno1) and self.inversioneRialzista(lastIsHammerOrStar) and self.vengoDaRibasso(candlesToCheck) and self.haveLittleBodyRialz(lastIsHammerOrStar)):
 
             print("INVERSIONE RIALZISTA")
             print(f"CHIUSURA CORRENTE: {self.chiusura(current)}")
-            print(f"CHIUSURA PRECEDENTE: {self.chiusura(lastIsHammerOrStar)}")
-            print(f"CHIUSURA CORRENTE MAGGIORE DELLA PRECEDENTE: {self.chiusura(current) > self.chiusura(lastIsHammerOrStar)}")
+            print(f"CANDELA PRECEDENTE VERDE: {self.isGreen(currentMeno1)}")
+            print(f"CHIUSURA PRECEDENTE: {self.chiusura(currentMeno1)}")
+            print(f"CHIUSURA CORRENTE MAGGIORE DELLA PRECEDENTE: {self.chiusura(current) > self.chiusura(currentMeno1)}")
             print(f"HO UNA HAMMER: {self.inversioneRibassista(lastIsHammerOrStar)}")
             print(f"STO VENENDO DA UN RIBASSO: {self.vengoDaRibasso(candlesToCheck)}")
             print(f"ORARIO SEGNALE INVERSIONE: {lastIsHammerOrStar['ctmString']}")
