@@ -8,7 +8,7 @@ from configs.generalConfigs import *
 from configs.symbolConfig import getConfigBySymbol
 from utils.systemUtils import waitForClose
 import datetime
-from tests.testplot import plotta
+from tests.testplot import plotta, getCharts
 
 
 SYMBOL = sys.argv[1]
@@ -160,49 +160,86 @@ class XTBot:
         return (candle['open'] + candle['low']) / pow(10, self.precision)
 
     def inversioneRibassista(self, candle):
-        return abs(candle['high']) > abs(candle['low']*2)
+        if(candle['close'] >= 0 ):
+            if((self.highPrice(candle) - self.chiusura(candle)) > (self.exactPrice(candle['open']) - self.lowPrice(candle)) * DIVISORE_GRANDEZZA_CANDELA):
+                return True
+        else:
+             if((self.highPrice(candle) - self.exactPrice(candle['open'])) > (self.exactPrice(candle['open']) - self.lowPrice(candle)) *  DIVISORE_GRANDEZZA_CANDELA):
+                return True    
+
+        return False       
 
     def inversioneRialzista(self, candle):
-        return abs(candle['low']) > abs(candle['high']*2)
+        if(candle['close'] >= 0 ):
+            if((self.exactPrice(candle['open']) - self.lowPrice(candle)) > (self.highPrice(candle) - self.chiusura(candle)) * DIVISORE_GRANDEZZA_CANDELA):
+                return True
+        else:
+            if((self.chiusura(candle) - self.lowPrice(candle)) > (self.highPrice(candle) - self.exactPrice(candle['open'])) * DIVISORE_GRANDEZZA_CANDELA):
+                return True    
 
-    def vengoDaRialzo(self, terzultima, quartultima, quintultima):
-        # return self.chiusura(terzultima) >  self.chiusura(quartultima) > self.chiusura(quintultima) #TODO: vedere quante candle confrontare
-        return self.chiusura(terzultima) >  self.chiusura(quartultima)
+        return False   
+
+        
+    def vengoDaRialzo(self, candlesToCheck):
+        # return self.chiusura(ultimaDelTrend) >  self.chiusura(penultimaDelTrend) > self.chiusura(terzultimaDelTrend) #TODO: vedere quante candle confrontare
+        # return self.chiusura(ultimaDelTrend) >  self.chiusura(penultimaDelTrend)
+        rialzo = True
+        for i in range(len(candlesToCheck)-1):
+            # print(f"questa: { self.chiusura(candlesToCheck[i])} maggiore di questa meno1: { self.chiusura(candlesToCheck[i+1])}")
+            if( self.chiusura(candlesToCheck[i])> self.chiusura(candlesToCheck[i+1])):
+                rialzo = True
+            else:
+                rialzo = False
+                return rialzo
+
+        return rialzo
 
 
-    def vengoDaRibasso(self, terzultima, quartultima, quintultima):
-        # return self.chiusura(terzultima) <  self.chiusura(quartultima) < self.chiusura(quintultima) #TODO: vedere quante candle confrontare
-        return self.chiusura(terzultima) <  self.chiusura(quartultima)
+
+    def vengoDaRibasso(self, candlesToCheck):
+        # return self.chiusura(ultimaDelTrend) <  self.chiusura(penultimaDelTrend) < self.chiusura(terzultimaDelTrend) #TODO: vedere quante candle confrontare
+        # return self.chiusura(ultimaDelTrend) <  self.chiusura(penultimaDelTrend)
+        rialzo = True
+        for i in range(len(candlesToCheck)-1):
+            # print(f"questa: { self.chiusura(candlesToCheck[i])} minore di questa meno1: { self.chiusura(candlesToCheck[i+1])}")
+            if( self.chiusura(candlesToCheck[i])< self.chiusura(candlesToCheck[i+1])):
+                rialzo = True
+            else:
+                rialzo = False
+                return rialzo
+                
+        return rialzo
 
 
-    def checkRibassistaInversion(self, current, last, terzultima, quartultima, quintultima):
+    def checkRibassistaInversion(self, current, currentMeno1, lastIsHammerOrStar, candlesToCheck):
 
-        if(self.chiusura(current) < self.chiusura(last) and self.inversioneRibassista(last) and self.vengoDaRialzo(terzultima, quartultima, quintultima) and self.haveLittleBodyRib(last)):
+        if(self.chiusura(current) < self.chiusura(currentMeno1) and self.inversioneRibassista(lastIsHammerOrStar) and self.vengoDaRialzo(candlesToCheck) and self.haveLittleBodyRib(lastIsHammerOrStar)):
             # print("INVERSIONE RIBASSISTA")
             # print(f"CHIUSURA CORRENTE: {self.chiusura(current)}")
-            # print(f"CHIUSURA PRECEDENTE: {self.chiusura(last)}")
-            # print(f"self.chiusura(current) < self.chiusura(last): {self.chiusura(current) < self.chiusura(last)}")
-            # print(f"self.inversioneRibassista(last): {self.inversioneRibassista(last)}")
-            # print(f"self.vengoDaRialzo(terzultima, quartultima, quintultima): {self.vengoDaRialzo(terzultima, quartultima, quintultima)}")
-            # print(f"MASSIMO PRECEDENTE: {last['high']}")
-            # print(f"MINIMO PRECEDENTE: {last['low']}")
-            # print(f"ORARIO: {last['ctmString']}")
+            # print(f"CHIUSURA PRECEDENTE: {self.chiusura(lastIsHammerOrStar)}")
+            # print(f"self.chiusura(current) < self.chiusura(last): {self.chiusura(current) < self.chiusura(lastIsHammerOrStar)}")
+            # print(f"self.inversioneRibassista(last): {self.inversioneRibassista(lastIsHammerOrStar)}")
+            # print(f"self.vengoDaRialzo(ultimaDelTrend, penultimaDelTrend, terzultimaDelTrend): {self.vengoDaRialzo(ultimaDelTrend, penultimaDelTrend, terzultimaDelTrend)}")
+            # print(f"MASSIMO PRECEDENTE: {lastIsHammerOrStar['high']}")
+            # print(f"MINIMO PRECEDENTE: {lastIsHammerOrStar['low']}")
+            # print(f"ORARIO: {lastIsHammerOrStar['ctmString']}")
             return True
         else:
             return False
 
-    def checkRialzistaInversion(self, current, last, terzultima, quartultima, quintultima):
+    def checkRialzistaInversion(self, current, currentMeno1, lastIsHammerOrStar, candlesToCheck):
 
-        if(self.chiusura(current) > self.chiusura(last) and self.inversioneRialzista(last) and self.vengoDaRibasso(terzultima, quartultima, quintultima) and self.haveLittleBodyRialz(last)):
-            # print("INVERSIONE RIBASSISTA")
+
+        if(self.chiusura(current) > self.chiusura(currentMeno1) and self.inversioneRialzista(lastIsHammerOrStar) and self.vengoDaRibasso(candlesToCheck) and self.haveLittleBodyRialz(lastIsHammerOrStar)):
+            # print("INVERSIONE RIALZISTA")
             # print(f"CHIUSURA CORRENTE: {self.chiusura(current)}")
-            # print(f"CHIUSURA PRECEDENTE: {self.chiusura(last)}")
-            # print(f"self.chiusura(current) > self.chiusura(last): {self.chiusura(current) > self.chiusura(last)}")
-            # print(f"self.inversioneRialzista(last): {self.inversioneRialzista(last)}")
-            # print(f"self.vengoDaRialzo(terzultima, quartultima, quintultima): {self.vengoDaRibasso(terzultima, quartultima, quintultima)}")
-            # print(f"MASSIMO PRECEDENTE: {last['low']}")
-            # print(f"MINIMO PRECEDENTE: {last['high']}")
-            # print(f"ORARIO: {last['ctmString']}")
+            # print(f"CHIUSURA PRECEDENTE: {self.chiusura(lastIsHammerOrStar)}")
+            # print(f"self.chiusura(current) > self.chiusura(last): {self.chiusura(current) > self.chiusura(lastIsHammerOrStar)}")
+            # print(f"self.inversioneRialzista(last): {self.inversioneRialzista(lastIsHammerOrStar)}")
+            # print(f"self.vengoDaRialzo(ultimaDelTrend, penultimaDelTrend, terzultimaDelTrend): {self.vengoDaRibasso(ultimaDelTrend, penultimaDelTrend, terzultimaDelTrend)}")
+            # print(f"MASSIMO PRECEDENTE: {lastIsHammerOrStar['low']}")
+            # print(f"MINIMO PRECEDENTE: {lastIsHammerOrStar['high']}")
+            # print(f"ORARIO: {lastIsHammerOrStar['ctmString']}")
             # print("\n\n")
 
             return True
@@ -366,26 +403,32 @@ class XTBot:
 
 
                 current = lastChartsInfoReverted[len(lastChartsInfoReverted)-1]
-                last = lastChartsInfoReverted[len(lastChartsInfoReverted)-2]
-                terzultima = lastChartsInfoReverted[len(lastChartsInfoReverted)-3]
-                quartultima = lastChartsInfoReverted[len(lastChartsInfoReverted)-4]
-                quintultima = lastChartsInfoReverted[len(lastChartsInfoReverted)-5]
+                currentMeno1 = lastChartsInfoReverted[len(lastChartsInfoReverted)-2]
+                lastIsHammerOrStar = lastChartsInfoReverted[len(lastChartsInfoReverted)-3]
+                ultimaDelTrend = lastChartsInfoReverted[len(lastChartsInfoReverted)-4]
+                penultimaDelTrend = lastChartsInfoReverted[len(lastChartsInfoReverted)-5]
+                terzultimaDelTrend = lastChartsInfoReverted[len(lastChartsInfoReverted)-6]
 
-                self.checkRialzistaInversion(current, last, terzultima, quartultima, quintultima)
-                self.checkRibassistaInversion(current, last, terzultima, quartultima, quintultima)
+                # self.checkRialzistaInversion(current, currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend, terzultimaDelTrend])
+                # self.checkRibassistaInversion(current, currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend, terzultimaDelTrend])
 
                 print(f'RSI: {round(rsi,2)}                                                              ',end="\r")
 
-                # plotta(last['open'] / pow(10, self.precision), self.chiusura(last), self.highPrice(last), self.lowPrice(last), last['close'] )
+                # plotta(current['open'] / pow(10, self.precision), self.chiusura(current), self.highPrice(current), self.lowPrice(current), current['close'] )
+                # plotta(currentMeno1['open'] / pow(10, self.precision), self.chiusura(currentMeno1), self.highPrice(currentMeno1), self.lowPrice(currentMeno1), currentMeno1['close'] )
+                # plotta(lastIsHammerOrStar['open'] / pow(10, self.precision), self.chiusura(lastIsHammerOrStar), self.highPrice(lastIsHammerOrStar), self.lowPrice(lastIsHammerOrStar), lastIsHammerOrStar['close'] )
+                # plotta(ultimaDelTrend['open'] / pow(10, self.precision), self.chiusura(ultimaDelTrend), self.highPrice(ultimaDelTrend), self.lowPrice(ultimaDelTrend), ultimaDelTrend['close'] )
+                # plotta(penultimaDelTrend['open'] / pow(10, self.precision), self.chiusura(penultimaDelTrend), self.highPrice(penultimaDelTrend), self.lowPrice(penultimaDelTrend), penultimaDelTrend['close'] )
+                # plotta(terzultimaDelTrend['open'] / pow(10, self.precision), self.chiusura(terzultimaDelTrend), self.highPrice(terzultimaDelTrend), self.lowPrice(terzultimaDelTrend), terzultimaDelTrend['close'] )
 
-                if(self.checkRSIIfInBuyRange(rsi) and self.checkRialzistaInversion(current, last, terzultima, quartultima, quintultima)):
+                if(self.checkRSIIfInBuyRange(rsi) and self.checkRialzistaInversion(current, currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend, terzultimaDelTrend])):
 
-                        self.openBuyTradeInversion(self.lowPrice(last))
+                        self.openBuyTradeInversion(self.lowPrice(lastIsHammerOrStar))
 
 
-                if(self.checkRSIIfInSellRange(rsi) and self.checkRibassistaInversion(current, last, terzultima, quartultima, quintultima)):
+                if(self.checkRSIIfInSellRange(rsi) and self.checkRibassistaInversion(current,currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend, terzultimaDelTrend])):
 
-                        self.openSellTradeInversion(self.highPrice(last))
+                        self.openSellTradeInversion(self.highPrice(lastIsHammerOrStar))
 
 
             else:

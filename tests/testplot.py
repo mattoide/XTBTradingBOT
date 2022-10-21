@@ -1,11 +1,21 @@
 import matplotlib.pyplot as plt
 
+import json
+
+
+def getCharts():
+    
+    f = open('./tests/test.json')
+    data = json.load(f)
+    f.close()
+    return data['returnData']['rateInfos']
+
 def plotta(prezzoApertura, prezzoChiusura, alto, basso, close):
-    print("prezzoApertura", prezzoApertura)
-    print("prezzoChiusura", prezzoChiusura)
-    print("alto", alto)
-    print("basso", basso)
-    print("close", close)
+    # print("prezzoApertura", prezzoApertura)
+    # print("prezzoChiusura", prezzoChiusura)
+    # print("alto", alto)
+    # print("basso", basso)
+    # print("close", close)
 
     #corpo
     x = [1,1]
