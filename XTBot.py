@@ -183,7 +183,7 @@ class XTBot:
     def vengoDaRialzo(self, candlesToCheck):
         # return self.chiusura(ultimaDelTrend) >  self.chiusura(penultimaDelTrend) > self.chiusura(terzultimaDelTrend) #TODO: vedere quante candle confrontare
         # return self.chiusura(ultimaDelTrend) >  self.chiusura(penultimaDelTrend)
-        rialzo = True
+        rialzo = False
         for i in range(len(candlesToCheck)-1):
             # print(f"questa: { self.chiusura(candlesToCheck[i])} maggiore di questa meno1: { self.chiusura(candlesToCheck[i+1])}")
             if( self.chiusura(candlesToCheck[i])> self.chiusura(candlesToCheck[i+1])):
@@ -199,16 +199,16 @@ class XTBot:
     def vengoDaRibasso(self, candlesToCheck):
         # return self.chiusura(ultimaDelTrend) <  self.chiusura(penultimaDelTrend) < self.chiusura(terzultimaDelTrend) #TODO: vedere quante candle confrontare
         # return self.chiusura(ultimaDelTrend) <  self.chiusura(penultimaDelTrend)
-        rialzo = True
+        ribasso = False
         for i in range(len(candlesToCheck)-1):
             # print(f"questa: { self.chiusura(candlesToCheck[i])} minore di questa meno1: { self.chiusura(candlesToCheck[i+1])}")
             if( self.chiusura(candlesToCheck[i])< self.chiusura(candlesToCheck[i+1])):
-                rialzo = True
+                ribasso = True
             else:
-                rialzo = False
-                return rialzo
+                ribasso = False
+                return ribasso
                 
-        return rialzo
+        return ribasso
 
     def isGreen(self, candle):
         return candle['close'] >= 0
@@ -244,7 +244,7 @@ class XTBot:
             print(f"CANDELA PRECEDENTE VERDE: {self.isGreen(currentMeno1)}")
             print(f"CHIUSURA PRECEDENTE: {self.chiusura(currentMeno1)}")
             print(f"CHIUSURA CORRENTE MAGGIORE DELLA PRECEDENTE: {self.chiusura(current) > self.chiusura(currentMeno1)}")
-            print(f"HO UNA HAMMER: {self.inversioneRibassista(lastIsHammerOrStar)}")
+            print(f"HO UNA HAMMER: {self.inversioneRialzista(lastIsHammerOrStar)}")
             print(f"STO VENENDO DA UN RIBASSO: {self.vengoDaRibasso(candlesToCheck)}")
             print(f"ORARIO SEGNALE INVERSIONE: {lastIsHammerOrStar['ctmString']}")
             print("\n")
@@ -428,14 +428,14 @@ class XTBot:
                 # plotta(penultimaDelTrend['open'] / pow(10, self.precision), self.chiusura(penultimaDelTrend), self.highPrice(penultimaDelTrend), self.lowPrice(penultimaDelTrend), penultimaDelTrend['close'] )
                 # plotta(terzultimaDelTrend['open'] / pow(10, self.precision), self.chiusura(terzultimaDelTrend), self.highPrice(terzultimaDelTrend), self.lowPrice(terzultimaDelTrend), terzultimaDelTrend['close'] )
 
-                if(self.checkRSIIfInBuyRange(rsi) and self.checkRialzistaInversion(current, currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend])):
+                if(self.checkRSIIfInBuyRange(rsi) and self.checkRialzistaInversion(current, currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend, terzultimaDelTrend])):
 
                         print("Compro analizzando da candela corrende delle:",current['ctmString'] )
 
                         self.openBuyTradeInversion(self.lowPrice(lastIsHammerOrStar))
 
 
-                if(self.checkRSIIfInSellRange(rsi) and self.checkRibassistaInversion(current,currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend])):
+                if(self.checkRSIIfInSellRange(rsi) and self.checkRibassistaInversion(current,currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend, terzultimaDelTrend])):
                         print("Vendo analizzando da candela corrende delle:",current['ctmString'] )
 
                         self.openSellTradeInversion(self.highPrice(lastIsHammerOrStar))
