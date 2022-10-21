@@ -8,7 +8,7 @@ from configs.generalConfigs import *
 from configs.symbolConfig import getConfigBySymbol
 from utils.systemUtils import waitForClose
 import datetime
-from tests.testplot import plotta, getCharts
+# from tests.testplot import plotta, getCharts
 
 
 SYMBOL = sys.argv[1]
@@ -514,6 +514,12 @@ class XTBot:
                 if(openedTrade != None):
                     profittoInPips = self.trasformaPips(openedTrade['close_price'] - openedTrade['open_price'])
 
+
+                    cmdd = openedTrade['cmd']
+
+
+                    profittoInPips = abs(profittoInPips) if cmdd == TransactionSide.SELL else profittoInPips
+
                     # profitto = openedTrade['profit']
                     # profittoInPips = self.trasformaPips(openedTrade['close_price'] - openedTrade['open_price'])
 
@@ -531,7 +537,6 @@ class XTBot:
 
 
 
-                    cmdd = openedTrade['cmd']
 
                     if((cmdd == TransactionSide.BUY and rsi > VALORE_ALTO_RSI and  openedTrade['offset'] <= 0 and profittoInPips>self.minimum_tp_value )):
 
