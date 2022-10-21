@@ -10,7 +10,6 @@ from utils.systemUtils import waitForClose
 import datetime
 # from tests.testplot import plotta, getCharts
 
-
 SYMBOL = sys.argv[1]
 
 class XTBot:
@@ -535,8 +534,13 @@ class XTBot:
                     print(f'RSI: {round(rsi,2)} - Profit: {GREEN} {profittoInPips} {RESET}      ',end="\r") if profittoInPips >= 0 else print(f'RSI: {round(rsi,2)} - Profit: {RED} {profittoInPips} {RESET}      ',end="\r")
                     # print(f'Profit: {GREEN} {profitto} {RESET}      ',end="\r") if profitto >= 0 else print(f'Profit: {RED} {profitto} {RESET}      ',end="\r")
 
-
-
+                    now = datetime.datetime.now()
+                    now_time = now.time()
+                    
+                    if (datetime.time(9,00) <= now_time <= datetime.time(22,00) and datetime.datetime.today().weekday() != 5 and datetime.datetime.today().weekday() != 6):
+                        self.minimum_tp_value = MINIMUM_TP_VALUE
+                    else:
+                        self.minimum_tp_value = MINIMUM_TP_VALUE_OUT_TIME
 
                     if((cmdd == TransactionSide.BUY and rsi > VALORE_ALTO_RSI and  openedTrade['offset'] <= 0 and profittoInPips>self.minimum_tp_value )):
 
