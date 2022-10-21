@@ -16,6 +16,14 @@ def getAllSymbols():
  
 symbols =    [
         {
+            'symbol': "BITCOIN",
+            'config':
+            
+                {
+
+                }
+        },      
+          {
             'symbol': "EURUSD",
             'config':
             
