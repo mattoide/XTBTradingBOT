@@ -163,23 +163,25 @@ class XTBot:
     def isStar(self, candle):
         if(candle['close'] >= 0 ):
             if((self.highPrice(candle) - self.chiusura(candle)) > (self.exactPrice(candle['open']) - self.lowPrice(candle)) * DIVISORE_GRANDEZZA_CANDELA):
+                self.stopLoss = self.highPrice(candle)
                 return True
         else:
              if((self.highPrice(candle) - self.exactPrice(candle['open'])) > (self.exactPrice(candle['open']) - self.lowPrice(candle)) *  DIVISORE_GRANDEZZA_CANDELA):
+                self.stopLoss = self.highPrice(candle)
                 return True    
         
-        self.stopLoss = self.highPrice(candle)
         return False       
 
     def isHammer(self, candle):
         if(candle['close'] >= 0 ):
             if((self.exactPrice(candle['open']) - self.lowPrice(candle)) > (self.highPrice(candle) - self.chiusura(candle)) * DIVISORE_GRANDEZZA_CANDELA):
+                self.stopLoss = self.lowPrice(candle)
                 return True
         else:
             if((self.chiusura(candle) - self.lowPrice(candle)) > (self.highPrice(candle) - self.exactPrice(candle['open'])) * DIVISORE_GRANDEZZA_CANDELA):
+                self.stopLoss = self.lowPrice(candle)
                 return True    
 
-        self.stopLoss = self.lowPrice(candle)
         return False   
 
     
@@ -519,16 +521,15 @@ class XTBot:
 
                     profittoInPips = abs(profittoInPips) if cmdd == TransactionSide.SELL else profittoInPips
 
-                    # profitto = openedTrade['profit']
-                    # profittoInPips = self.trasformaPips(openedTrade['close_price'] - openedTrade['open_price'])
+                    profitto = openedTrade['profit']
 
-                    # if(profitto == None):
-                    #     symbolInfo = self.getSymbol()
-                    #     prezzoAcquisto = symbolInfo['returnData']['bid']
-                    #     prezzoVendita = symbolInfo['returnData']['ask']
+                    if(profitto == None):
+                        symbolInfo = self.getSymbol()
+                        prezzoAcquisto = symbolInfo['returnData']['bid']
+                        prezzoVendita = symbolInfo['returnData']['ask']
 
-                    #     profitto = self.calcolaProfitto(openedTrade['cmd'], openedTrade['open_price'], prezzoAcquisto if openedTrade['cmd'] == TransactionSide.BUY else prezzoVendita)
-                    #     logger.info(f"\n#########\nError retrieving profit. Calculated profit: {profitto}\n#########")
+                        profitto = self.calcolaProfitto(openedTrade['cmd'], openedTrade['open_price'], prezzoAcquisto if openedTrade['cmd'] == TransactionSide.BUY else prezzoVendita)
+                        logger.info(f"\n#########\nError retrieving profit. Calculated profit: {profitto}\n#########")
 
 
                     print(f'RSI: {round(rsi,2)} - Profit: {GREEN} {profittoInPips} {RESET}      ',end="\r") if profittoInPips >= 0 else print(f'RSI: {round(rsi,2)} - Profit: {RED} {profittoInPips} {RESET}      ',end="\r")
@@ -542,20 +543,20 @@ class XTBot:
                     else:
                         self.minimum_tp_value = MINIMUM_TP_VALUE_OUT_TIME
 
-                    if((cmdd == TransactionSide.BUY and rsi > VALORE_ALTO_RSI and  openedTrade['offset'] <= 0 and profittoInPips>self.minimum_tp_value )):
+                    if((cmdd == TransactionSide.BUY and rsi > VALORE_ALTO_RSI and  openedTrade['offset'] <= 0 and profittoInPips>self.minimum_tp_value and profitto > 0)):
 
                         logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS_ALTO}\n#########")
                         modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, VALORE_TRALING_STOP_LOSS_ALTO)['status']
 
                         print(f"Modify trade result: {GREEN} {modifyResult} {RESET}") if modifyResult == True else print(f"Modify trade result: {RED} {modifyResult} {RESET}")
 
-                    elif((cmdd == TransactionSide.SELL and rsi < VALORE_BASSO_RSI and  openedTrade['offset'] <= 0 and profittoInPips>self.minimum_tp_value)):
+                    elif((cmdd == TransactionSide.SELL and rsi < VALORE_BASSO_RSI and  openedTrade['offset'] <= 0 and profittoInPips>self.minimum_tp_value and profitto > 0)):
 
                         logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS_ALTO}\n#########")
                         modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, VALORE_TRALING_STOP_LOSS_ALTO)['status']
 
                         print(f"Modify trade result: {GREEN} {modifyResult} {RESET}") if modifyResult == True else print(f"Modify trade result: {RED} {modifyResult} {RESET}")
-                    elif((openedTrade['offset'] <= 0 and  profittoInPips>(self.minimum_tp_value*2))):
+                    elif((openedTrade['offset'] <= 0 and  profittoInPips>(self.minimum_tp_value*2) and profitto > 0)):
                         logger.info(f"\n#########\n\n######### PIPS X 2 #########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS_BASSO}\n#########")
                         modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, VALORE_TRALING_STOP_LOSS_BASSO)['status']
 
