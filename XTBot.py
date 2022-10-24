@@ -519,7 +519,21 @@ class XTBot:
                     cmdd = openedTrade['cmd']
 
 
-                    profittoInPips = abs(profittoInPips) if cmdd == TransactionSide.SELL else profittoInPips
+                    # profittoInPips = abs(profittoInPips) if cmdd == TransactionSide.SELL and profittoInPips < 0 else profittoInPips
+                    # profittoInPips = profittoInPips * -1 if cmdd == TransactionSide.SELL and profittoInPips > 0 else profittoInPips
+
+                    print(f"PRODITTO IN PIPS PIRMA {profittoInPips} dato da {openedTrade['close_price']} - {openedTrade['open_price']}")
+
+                    if( cmdd == TransactionSide.SELL and profittoInPips < 0):
+                        print("vendo e il close è minore di open qquindi sono in pos")
+                        profittoInPips = abs(profittoInPips)
+                    
+                    elif (cmdd == TransactionSide.SELL and profittoInPips>0):
+                        print("vendo e il close è minore di open qquindi sono in NEGATICO")
+                        profittoInPips = -profittoInPips
+                 
+                    print(f"PRODITTO IN PIPS DOPO {profittoInPips} dato da {openedTrade['close_price']} - {openedTrade['open_price']}")
+
 
                     profitto = openedTrade['profit']
 
