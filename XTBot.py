@@ -498,14 +498,14 @@ class XTBot:
                 # plotta(penultimaDelTrend['open'] / pow(10, self.precision), self.chiusura(penultimaDelTrend), self.highPrice(penultimaDelTrend), self.lowPrice(penultimaDelTrend), penultimaDelTrend['close'] )
                 # plotta(terzultimaDelTrend['open'] / pow(10, self.precision), self.chiusura(terzultimaDelTrend), self.highPrice(terzultimaDelTrend), self.lowPrice(terzultimaDelTrend), terzultimaDelTrend['close'] )
 
-                if(self.checkRSIIfInBuyRange(rsi) and self.checkRialzistaInversion(current, currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend, terzultimaDelTrend])):
+                if(self.checkRSIIfInBuyRange(rsi) and self.checkRialzistaInversion(current, currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend])):
 
                         print("Compro analizzando da candela corrende delle:",current['ctmString'] )
 
                         self.openBuyTradeInversion(self.stopLoss)
 
 
-                if(self.checkRSIIfInSellRange(rsi) and self.checkRibassistaInversion(current,currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend, terzultimaDelTrend])):
+                if(self.checkRSIIfInSellRange(rsi) and self.checkRibassistaInversion(current,currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend])):
                         print("Vendo analizzando da candela corrende delle:",current['ctmString'] )
 
                         self.openSellTradeInversion(self.stopLoss)
@@ -542,7 +542,7 @@ class XTBot:
                     now = datetime.datetime.now()
                     now_time = now.time()
                     
-                    if (datetime.time(9,00) <= now_time <= datetime.time(22,00) and datetime.datetime.today().weekday() != 5 and datetime.datetime.today().weekday() != 6):
+                    if (datetime.time(9,00) <= now_time <= datetime.time(20,00) and datetime.datetime.today().weekday() != 5 and datetime.datetime.today().weekday() != 6):
                         self.minimum_tp_value = MINIMUM_TP_VALUE
                         self.valore_trailing_stop = VALORE_TRALING_STOP_LOSS_ALTO
                     else:
