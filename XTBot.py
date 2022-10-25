@@ -18,6 +18,7 @@ class XTBot:
         self.checkSymbolConfig()
         self.minuti_timestamp_get_charts = MINUTI_TIMESTAMP_GET_CHART_1_MIN
         self.minimum_tp_value = MINIMUM_TP_VALUE * MULTYPLIER
+        self.valore_trailing_stop = VALORE_TRALING_STOP_LOSS_ALTO
         self.stopLoss = 0
         self.client = APIClient()
         self.login()
@@ -543,20 +544,22 @@ class XTBot:
                     
                     if (datetime.time(9,00) <= now_time <= datetime.time(22,00) and datetime.datetime.today().weekday() != 5 and datetime.datetime.today().weekday() != 6):
                         self.minimum_tp_value = MINIMUM_TP_VALUE
+                        self.valore_trailing_stop = VALORE_TRALING_STOP_LOSS_ALTO
                     else:
                         self.minimum_tp_value = MINIMUM_TP_VALUE_OUT_TIME
+                        self.valore_trailing_stop = VALORE_TRALING_STOP_LOSS_BASSO
 
                     if((cmdd == TransactionSide.BUY and rsi > VALORE_ALTO_RSI and  openedTrade['offset'] <= 0 and profittoInPips>self.minimum_tp_value and profitto > 0)):
 
-                        logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS_ALTO}\n#########")
-                        modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, VALORE_TRALING_STOP_LOSS_ALTO)['status']
+                        logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {self.minimum_tp_value}\n#########")
+                        modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, self.minimum_tp_value)['status']
 
                         print(f"Modify trade result: {GREEN} {modifyResult} {RESET}") if modifyResult == True else print(f"Modify trade result: {RED} {modifyResult} {RESET}")
 
                     elif((cmdd == TransactionSide.SELL and rsi < VALORE_BASSO_RSI and  openedTrade['offset'] <= 0 and profittoInPips>self.minimum_tp_value and profitto > 0)):
 
-                        logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS_ALTO}\n#########")
-                        modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, VALORE_TRALING_STOP_LOSS_ALTO)['status']
+                        logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {self.minimum_tp_value}\n#########")
+                        modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, self.minimum_tp_value)['status']
 
                         print(f"Modify trade result: {GREEN} {modifyResult} {RESET}") if modifyResult == True else print(f"Modify trade result: {RED} {modifyResult} {RESET}")
                     elif((openedTrade['offset'] <= 0 and  profittoInPips>(self.minimum_tp_value*2) and profitto > 0)):
