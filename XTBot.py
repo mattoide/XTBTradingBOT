@@ -90,21 +90,21 @@ class XTBot:
 
         logger.info(f"\n#########\nOpen position: BUY\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{self.rsi}\n#########")
 
-        order = self.client.commandExecute('tradeTransaction', dict(tradeTransInfo=dict(cmd=TransactionSide.BUY, symbol=SYMBOL, price=TRADE_PRICE, sl=sl, tp=0, type=TransactionType.ORDER_OPEN, volume=self.lotMin)))
-        if(order['status']):
-            self.order = order['returnData']['order']
-        else:
-            print("ERROR: ",order)
+        # order = self.client.commandExecute('tradeTransaction', dict(tradeTransInfo=dict(cmd=TransactionSide.BUY, symbol=SYMBOL, price=TRADE_PRICE, sl=sl, tp=0, type=TransactionType.ORDER_OPEN, volume=self.lotMin)))
+        # if(order['status']):
+        #     self.order = order['returnData']['order']
+        # else:
+        #     print("ERROR: ",order)
 
     def openSellTradeInversion(self, sl):
 
         logger.info(f"\n#########\nOpen position: SELL\nFor: {SYMBOL}\nSL: {sl}\nLot:{self.lotMin}\nRSI:{self.rsi}\n#########")
 
-        order = self.client.commandExecute('tradeTransaction', dict(tradeTransInfo=dict(cmd=TransactionSide.SELL, symbol=SYMBOL, price=TRADE_PRICE, sl=sl, tp=0, type=TransactionType.ORDER_OPEN, volume=self.lotMin)))
-        if(order['status']):
-            self.order = order['returnData']['order']
-        else:
-            print("ERROR: ",order)
+        # order = self.client.commandExecute('tradeTransaction', dict(tradeTransInfo=dict(cmd=TransactionSide.SELL, symbol=SYMBOL, price=TRADE_PRICE, sl=sl, tp=0, type=TransactionType.ORDER_OPEN, volume=self.lotMin)))
+        # if(order['status']):
+        #     self.order = order['returnData']['order']
+        # else:
+        #     print("ERROR: ",order)
 
     def modifyTrade(self, order, transactionType, sl, tp, trailingStopLoss):
         return self.client.commandExecute('tradeTransaction', dict(tradeTransInfo=dict(order=order, cmd=transactionType, symbol=SYMBOL, price=TRADE_PRICE, sl=sl, tp=tp, type=TransactionType.ORDER_MODIFY, volume=self.lotMin, offset=trailingStopLoss)))
@@ -200,11 +200,11 @@ class XTBot:
     
     def isBullishEngulfingFigure(self, candle1, candle2):
         if(self.isGreen(candle1) and self.isRed(candle2) and  self.chiusura(candle1) > self.exactPrice(candle2['open']) and  self.exactPrice(candle1['open']) < self.chiusura(candle2) and self.candela1InghiotteCandela2(candle1, candle2)):
-            print("PATTERN isBullishEngulfingFigure")
-            print("Candela 1 orario:", candle1['ctmString'])   
-            print("Candela 1 grandezza:", self.distanzaTraAperturaEChiusura(candle1))   
-            print("Candela 2 orario:", candle2['ctmString'])   
-            print("Candela 2 grandezza:", self.distanzaTraAperturaEChiusura(candle2))   
+            # print("PATTERN isBullishEngulfingFigure")
+            # print("Candela 1 orario:", candle1['ctmString'])   
+            # print("Candela 1 grandezza:", self.distanzaTraAperturaEChiusura(candle1))   
+            # print("Candela 2 orario:", candle2['ctmString'])   
+            # print("Candela 2 grandezza:", self.distanzaTraAperturaEChiusura(candle2))   
 
             if(self.lowPrice(candle1) < self.lowPrice(candle2)):
                 self.stopLoss = self.lowPrice(candle1)
@@ -215,11 +215,11 @@ class XTBot:
 
     def isBearishEngulfingFigure(self, candle1, candle2):
         if(self.isRed(candle1) and self.isGreen(candle2) and self.exactPrice(candle1['open']) > self.chiusura(candle2) and self.chiusura(candle1) < self.exactPrice(candle2['open'])  and self.candela1InghiotteCandela2(candle1, candle2)):
-            print("PATTERN isBearishEngulfingFigure")
-            print("Candela 1 orario:", candle1['ctmString'])   
-            print("Candela 1 grandezza:", self.distanzaTraAperturaEChiusura(candle1))   
-            print("Candela 2 orario:", candle2['ctmString'])   
-            print("Candela 2 grandezza:", self.distanzaTraAperturaEChiusura(candle2))   
+            # print("PATTERN isBearishEngulfingFigure")
+            # print("Candela 1 orario:", candle1['ctmString'])   
+            # print("Candela 1 grandezza:", self.distanzaTraAperturaEChiusura(candle1))   
+            # print("Candela 2 orario:", candle2['ctmString'])   
+            # print("Candela 2 grandezza:", self.distanzaTraAperturaEChiusura(candle2))   
 
             if(self.lowPrice(candle1) < self.lowPrice(candle2)):
                 self.stopLoss = self.lowPrice(candle1)
@@ -285,10 +285,6 @@ class XTBot:
         if(self.isStarSignal(current, currentMeno1, lastIsHammerOrStar, candlesToCheck) or self.isBearishEngulfingSignal(current, currentMeno1, lastIsHammerOrStar, candlesToCheck)):
         # if(self.isStarSignal(current, currentMeno1, lastIsHammerOrStar, candlesToCheck)):
             print("INVERSIONE RIBASSISTA")
-            print(f"CHIUSURA CORRENTE: {self.chiusura(current)}")
-            print(f"CANDELA PRECEDENTE ROSSA: {self.isRed(currentMeno1)}")
-            print(f"CHIUSURA PRECEDENTE: {self.chiusura(currentMeno1)}")
-            print(f"CHIUSURA CORRENTE MINORE DELLA PRECEDENTE: {self.chiusura(current) < self.chiusura(currentMeno1)}")
             print(f"HO UNA SHOOTING STAR: {self.isStar(lastIsHammerOrStar)}")
             # print(f"HO UN BEARUSH ENGULFING PATTERN: {self.isBearishEngulfingSignal(current, currentMeno1, lastIsHammerOrStar, candlesToCheck)}")
             print(f"STO VENENDO DA UN RIALZO: {self.vengoDaRialzo(candlesToCheck)}")
@@ -309,10 +305,6 @@ class XTBot:
         # if(self.isHammerSignal(current, currentMeno1, lastIsHammerOrStar, candlesToCheck)):
 
             print("INVERSIONE RIALZISTA")
-            print(f"CHIUSURA CORRENTE: {self.chiusura(current)}")
-            print(f"CANDELA PRECEDENTE VERDE: {self.isGreen(currentMeno1)}")
-            print(f"CHIUSURA PRECEDENTE: {self.chiusura(currentMeno1)}")
-            print(f"CHIUSURA CORRENTE MAGGIORE DELLA PRECEDENTE: {self.chiusura(current) > self.chiusura(currentMeno1)}")
             print(f"HO UNA HAMMER: {self.isHammer(lastIsHammerOrStar)}")
             # print(f"HO UN BULLISH ENGULFING PATTERN: {self.isBullishEngulfingSignal(current, currentMeno1, lastIsHammerOrStar, candlesToCheck)}")
             print(f"STO VENENDO DA UN RIBASSO: {self.vengoDaRibasso(candlesToCheck)}")
@@ -570,9 +562,9 @@ class XTBot:
 
                     if((openedTrade['offset'] <= 0 and  profittoInPips>self.minimum_tp_value and profitto > 0)):
                         logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {self.valore_trailing_stop}\n#########")
-                        modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, self.valore_trailing_stop)['status']
+                        # modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, self.valore_trailing_stop)['status']
 
-                        print(f"Modify trade result: {GREEN} {modifyResult} {RESET}") if modifyResult == True else print(f"Modify trade result: {RED} {modifyResult} {RESET}")
+                        # print(f"Modify trade result: {GREEN} {modifyResult} {RESET}") if modifyResult == True else print(f"Modify trade result: {RED} {modifyResult} {RESET}")
 
             sleep(1)
 
