@@ -17,7 +17,7 @@ class XTBot:
         self.symbol = symbol
         self.checkSymbolConfig()
         self.minuti_timestamp_get_charts = MINUTI_TIMESTAMP_GET_CHART_1_MIN
-        self.minimum_tp_value = MINIMUM_TP_VALUE * MULTYPLIER
+        self.minimum_tp_value = MINIMUM_TP_VALUE
         self.valore_trailing_stop = VALORE_TRALING_STOP_LOSS_ALTO
         self.stopLoss = 0
         self.client = APIClient()
