@@ -569,7 +569,7 @@ class XTBot:
                     #     print(f"Modify trade result: {GREEN} {modifyResult} {RESET}") if modifyResult == True else print(f"Modify trade result: {RED} {modifyResult} {RESET}")
 
                     if((openedTrade['offset'] <= 0 and  profittoInPips>self.minimum_tp_value and profitto > 0)):
-                        logger.info(f"\n#########\n\n######### PIPS X 2 #########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS_BASSO}\n#########")
+                        logger.info(f"\n#########\nModify position for order {openedTrade['order']}\nTrailing SL: {VALORE_TRALING_STOP_LOSS_BASSO}\n#########")
                         modifyResult = self.modifyTrade(openedTrade['order'], openedTrade['cmd'] , openedTrade['sl'], 0, VALORE_TRALING_STOP_LOSS_BASSO)['status']
 
                         print(f"Modify trade result: {GREEN} {modifyResult} {RESET}") if modifyResult == True else print(f"Modify trade result: {RED} {modifyResult} {RESET}")
