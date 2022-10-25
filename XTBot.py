@@ -199,7 +199,7 @@ class XTBot:
         return candle['close'] < 0
     
     def isBullishEngulfingFigure(self, candle1, candle2):
-        if(self.isGreen(candle1) and self.isRed(candle2) and  self.chiusura(candle1) > self.chiusura(candle2) and self.candela1InghiotteCandela2(candle1, candle2)):
+        if(self.isGreen(candle1) and self.isRed(candle2) and  self.chiusura(candle1) > self.exactPrice(candle2['open']) and  self.exactPrice(candle1['open']) < self.chiusura(candle2) and self.candela1InghiotteCandela2(candle1, candle2)):
             print("PATTERN isBullishEngulfingFigure")
             print("Candela 1 orario:", candle1['ctmString'])   
             print("Candela 1 grandezza:", self.distanzaTraAperturaEChiusura(candle1))   
@@ -214,7 +214,7 @@ class XTBot:
         return self.isGreen(candle1) and self.isRed(candle2) and  self.chiusura(candle1) > self.chiusura(candle2) and self.candela1InghiotteCandela2(candle1, candle2)
 
     def isBearishEngulfingFigure(self, candle1, candle2):
-        if(self.isRed(candle1) and self.isGreen(candle2) and self.chiusura(candle1) < self.chiusura(candle2) and self.candela1InghiotteCandela2(candle1, candle2)):
+        if(self.isRed(candle1) and self.isGreen(candle2) and self.exactPrice(candle1['open']) > self.chiusura(candle2) and self.chiusura(candle1) < self.exactPrice(candle2['open'])  and self.candela1InghiotteCandela2(candle1, candle2)):
             print("PATTERN isBearishEngulfingFigure")
             print("Candela 1 orario:", candle1['ctmString'])   
             print("Candela 1 grandezza:", self.distanzaTraAperturaEChiusura(candle1))   
