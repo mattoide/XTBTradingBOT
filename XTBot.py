@@ -402,6 +402,8 @@ class XTBot:
 
         return lastChartsInfo
 
+    def currentVolMaggioreDiPreviousVol(self, current, previous):
+        return (current['vol'] - previous['vol']) > previous['vol'] / 3
 
 
     def calcolaRsi(self):
@@ -498,14 +500,16 @@ class XTBot:
                 # plotta(penultimaDelTrend['open'] / pow(10, self.precision), self.chiusura(penultimaDelTrend), self.highPrice(penultimaDelTrend), self.lowPrice(penultimaDelTrend), penultimaDelTrend['close'] )
                 # plotta(terzultimaDelTrend['open'] / pow(10, self.precision), self.chiusura(terzultimaDelTrend), self.highPrice(terzultimaDelTrend), self.lowPrice(terzultimaDelTrend), terzultimaDelTrend['close'] )
 
-                if(self.checkRSIIfInBuyRange(rsi) and self.checkRialzistaInversion(current, currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend])):
+                # if(self.checkRSIIfInBuyRange(rsi) and self.checkRialzistaInversion(current, currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend])):
+                if(self.currentVolMaggioreDiPreviousVol(current, currentMeno1) and self.checkRialzistaInversion(current, currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend])):
 
                         print("Compro analizzando da candela corrende delle:",current['ctmString'] )
 
                         self.openBuyTradeInversion(self.stopLoss)
 
 
-                if(self.checkRSIIfInSellRange(rsi) and self.checkRibassistaInversion(current,currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend])):
+                # if(self.checkRSIIfInSellRange(rsi) and self.checkRibassistaInversion(current,currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend])):
+                if(self.currentVolMaggioreDiPreviousVol(current, currentMeno1) and self.checkRibassistaInversion(current,currentMeno1, lastIsHammerOrStar, [ultimaDelTrend, penultimaDelTrend])):
                         print("Vendo analizzando da candela corrende delle:",current['ctmString'] )
 
                         self.openSellTradeInversion(self.stopLoss)
